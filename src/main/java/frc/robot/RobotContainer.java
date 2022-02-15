@@ -7,20 +7,25 @@ package frc.robot;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.Aiming;
 import frc.robot.commands.DrivetrainTest;
-import frc.robot.commands.IndexTurn;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Navx;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
   final public Drivetrain drivetrain = new Drivetrain();
@@ -30,11 +35,14 @@ public class RobotContainer {
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
+  public double waitNumber = SmartDashboard.getNumber("wait", 99);
 
   final private JoystickButton rBump = new JoystickButton(xboxController, Button.kRightBumper.value);
   final private JoystickButton lBump = new JoystickButton(xboxController, Button.kLeftBumper.value);
   final private JoystickButton bButt = new JoystickButton(xboxController, Button.kB.value);
   final private JoystickButton aButt = new JoystickButton(xboxController, Button.kA.value);
+  final private JoystickButton yButt = new JoystickButton(xboxController, Button.kY.value);
+
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
       if (xboxController.getRightTriggerAxis() > 0.05) {
@@ -55,14 +63,14 @@ public class RobotContainer {
   };
 
   public RobotContainer() {
+    navx.reset();
+
     limelight.setDefaultCommand(
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
           SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
         }, limelight));
-
-    
 
     // DRIVING
     RunCommand teleopDriving = new RunCommand(
@@ -75,14 +83,17 @@ public class RobotContainer {
         }, drivetrain);
 
     DrivetrainTest drivetrainTest = new DrivetrainTest(drivetrain);
-    drivetrain.setDefaultCommand(teleopDriving);
+    drivetrain.setDefaultCommand(drivetrainTest);
 
     configureButtonBindings();
   }
 
+  // TODO: figure out a way to have switchable schemes
   public void configureButtonBindings() {
-    shooter.setDefaultCommand(new RunCommand(() -> shooter.setSpeed(xboxController.getRightTriggerAxis()), shooter));
 
+    double limit = 0.5;
+    rTrig.whenActive(() -> shooter.setSpeed(Math.min(xboxController.getRightTriggerAxis(), limit)))
+        .whenInactive(() -> shooter.setSpeed(0));
     lBump.whenPressed(new InstantCommand(intake::on, intake))
         .whenReleased(new InstantCommand(intake::off, intake));
 
@@ -92,7 +103,15 @@ public class RobotContainer {
     bButt.whenPressed(new InstantCommand(() -> intake.on(), intake))
         .whenReleased(() -> intake.off(), intake);
 
-    aButt.whenPressed(new IndexTurn(2, index));
+    aButt.whenPressed(
+        new SequentialCommandGroup(new InstantCommand(index::on, index),
+            new ParallelDeadlineGroup(new WaitCommand(Constants.indexWaitTime), new RunCommand(() -> {
+            }, index)),
+            new InstantCommand(index::off, index)));
+
+    yButt.whenPressed(new Aiming(limelight, drivetrain, shooter));
+
+    SmartDashboard.putData("reset gyro", new InstantCommand(navx::reset, navx));
   }
 
   public void displayControllerSticks() {
@@ -111,7 +130,9 @@ public class RobotContainer {
     } else {
       return calculation;
     }
-
   }
 
+  public Command getAutonomousCommand() {
+    return new SequentialCommandGroup(); //new SequentialCommandGroup(new InstantCommand(intake::on, intake))
+  }
 }

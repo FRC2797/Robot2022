@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import static java.lang.Math.tan; 
@@ -20,12 +21,17 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry targetArea = table.getEntry("ta");
   private NetworkTableEntry skew = table.getEntry("ts");
   private NetworkTableEntry hasTarget = table.getEntry("tv");
+  private double smartDashboardMountingAngle;
+
 
   public Limelight() {
+    SmartDashboard.putNumber("mounting angle", 0); 
   }
 
   @Override
   public void periodic() {
+    smartDashboardMountingAngle = SmartDashboard.getNumber("mounting angle", -99); 
+    
   }
 
   @Override
@@ -33,8 +39,9 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance() {
+    //TODO: Set the mounting angle back to the constant
     return (Constants.heightDifference) /
-        tan(toRadians(Constants.mountingAngle +
+        tan(toRadians(smartDashboardMountingAngle +
             verticalOffset.getDouble(-99)));
   }
 
@@ -48,6 +55,10 @@ public class Limelight extends SubsystemBase {
 
   public boolean getHasTarget() {
     return hasTarget.getDouble(-99) == 1 ? true : false;
+  }
+
+  public void setPipeline(int index) {
+
   }
 
 }

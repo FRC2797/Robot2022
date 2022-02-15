@@ -28,6 +28,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("left Motor encoder", leftMotor.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("right motor encoder", rightMotor.getEncoder().getVelocity()); 
+    
   }
 
   @Override
@@ -39,10 +40,7 @@ public class Shooter extends SubsystemBase {
 
   }
 
-  public void setSpeed(double speed) {
-    if (speed > 0.5) {
-      speed = 0.5; 
-    }
+ public void setSpeed(double speed) {
     flyWheelMotors.set(speed);
   } 
 
@@ -52,10 +50,6 @@ public class Shooter extends SubsystemBase {
 
   public void off() {
     setSpeed(0);
-  }
-
-  public void revUp() {
-    setSpeed(0.3);
   }
 
 }

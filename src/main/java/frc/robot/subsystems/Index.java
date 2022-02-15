@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Index extends SubsystemBase {
   private CANSparkMax motor = new CANSparkMax(kIndex, MotorType.kBrushless);
@@ -35,15 +36,6 @@ public class Index extends SubsystemBase {
 
   public void off() {
     motor.set(0);
-  }
-
-  public double getEncoderCount() {
-    //42 counts per revolution
-    return encoder.getPosition(); 
-  }
-
-  public double getRevolutions() {
-    return encoder.getPosition() / encoder.getCountsPerRevolution(); 
   }
 
 }

@@ -35,10 +35,11 @@ public final class Constants {
     public static final double kfilterLimitRotation = 0;
 
     // Limelight constants
-    public static final double hubHeight = 47;
-    public static final double limelightHeight = 26;
+    // All in inches    
+    public static final double hubHeight = 96;
+    public static final double limelightHeight = 39 + (3/4);
     public static final double heightDifference = hubHeight - limelightHeight;
-    public static final double mountingAngle = 0;
+    public static final double mountingAngle = 8.25;
 
     //Control constants
     public static final double aimingkP = 0.1;
@@ -48,5 +49,9 @@ public final class Constants {
 
 
     public static final double indexGearRatio = 0.5; 
+    public static final double indexWaitTime = 0.5;
 
+    //Auto Constants
+    public static final double forwardTime = 0;
+    public static final double rotateTime = 0;
 }
