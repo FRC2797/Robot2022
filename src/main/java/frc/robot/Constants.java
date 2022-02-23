@@ -18,17 +18,27 @@ package frc.robot;
  */
 public final class Constants {
     public final class Motors {
-        public static final int RearRight = 1;
-        public static final int FrontRight = 2;
-        public static final int FrontLeft = 8;
-        public static final int RearLeft = 4;
+        public final class Drivetrain {
+            public static final int RearRight = 1;
+            public static final int FrontRight = 2;
+            public static final int FrontLeft = 8;
+            public static final int RearLeft = 4;
+        }
+
+        public final class Climber {
+            //FIXME: Needs actual constants
+            public static final int RearRight = 16;
+            public static final int FrontRight = 17;
+            public static final int FrontLeft = 18;
+            public static final int RearLeft = 19;
+        }
+
         public static final int Intake = 5;
         public static final int Index = 6;
         public static final int Shooter1 = 7;
         public static final int Shooter2 = 9;
         public static final int LeftClimber = 10;
         public static final int RightClimber = 11;
-        
 
     }
 
@@ -39,7 +49,7 @@ public final class Constants {
 
     // Xbox Controller Constants
     public static final double triggerDeadzone = 0.05;
-    public static final double shooterPowerLimit = 1; 
+    public static final double shooterPowerLimit = 1;
 
     // Auto Constants
     // TODO: Need to get right constant, look at field, might need multiple so that
@@ -73,17 +83,16 @@ public final class Constants {
     public static final double forwardTime = 0;
     public static final double rotateTime = 0;
 
-    
     public final class encoderConstantsDrivetrain {
         // Motor used: NEO Brushless, REV-21-1650
         // Wheel diameter in inches
         public static final double wheelDiameter = 6;
-        public static final double wheelCircumference = 6 * Math.PI; 
+        public static final double wheelCircumference = 6 * Math.PI;
         public static final double gearRatio = 7.31;
 
-
-       //this is correct, The relative encoder getPosition() returns the amount of input rotations directly, no need to change it whatsoever
-       public static final double outputRotationInAInputRotation = 1/gearRatio;
+        // this is correct, The relative encoder getPosition() returns the amount of
+        // input rotations directly, no need to change it whatsoever
+        public static final double outputRotationInAInputRotation = 1 / gearRatio;
     }
 
     public final class encoderConstantsIndex {
@@ -92,8 +101,8 @@ public final class Constants {
         public static final double wheelDiameter = 4;
         public static final double gearRatio = 12.75;
 
-
-        //this is correct, The relative encoder getPosition() returns the amount of input rotations directly, no need to change it whatsoever
-        public static final double outputRotationInAInputRotation = 1/gearRatio;
+        // this is correct, The relative encoder getPosition() returns the amount of
+        // input rotations directly, no need to change it whatsoever
+        public static final double outputRotationInAInputRotation = 1 / gearRatio;
     }
 }

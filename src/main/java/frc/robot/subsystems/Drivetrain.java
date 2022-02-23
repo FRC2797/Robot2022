@@ -4,17 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.FrontLeft;
-import static frc.robot.Constants.Motors.FrontRight;
-import static frc.robot.Constants.Motors.RearLeft;
-import static frc.robot.Constants.Motors.RearRight;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.Motors.Drivetrain.*;
 import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
