@@ -18,21 +18,24 @@ package frc.robot;
  */
 public final class Constants {
     public final class Motors {
-        public static final int kRearRight = 1;
-        public static final int kFrontRight = 2;
-        public static final int kFrontLeft = 8;
-        public static final int kRearLeft = 4;
-        public static final int kIntake = 5;
-        public static final int kIndex = 6;
-        public static final int kShooter1 = 7;
-        public static final int kShooter2 = 9;
+        public static final int RearRight = 1;
+        public static final int FrontRight = 2;
+        public static final int FrontLeft = 8;
+        public static final int RearLeft = 4;
+        public static final int Intake = 5;
+        public static final int Index = 6;
+        public static final int Shooter1 = 7;
+        public static final int Shooter2 = 9;
+        public static final int LeftClimber = 10;
+        public static final int RightClimber = 11;
+        
 
     }
 
-    public static final double kdeadband = 0;
-    public static final double kfilterLimitForwards = 0.5;
-    public static final double kfilterLimitSideways = 0;
-    public static final double kfilterLimitRotation = 0;
+    public static final double deadband = 0;
+    public static final double filterLimitForwards = 0.5;
+    public static final double filterLimitSideways = 0;
+    public static final double filterLimitRotation = 0;
 
     // Xbox Controller Constants
     public static final double triggerDeadzone = 0.05;

@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.kIndex;
+import static frc.robot.Constants.Motors.Index;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Index extends SubsystemBase {
-  private CANSparkMax motor = new CANSparkMax(kIndex, MotorType.kBrushless);
+  private CANSparkMax motor = new CANSparkMax(Index, MotorType.kBrushless);
   private RelativeEncoder encoder = motor.getEncoder(); 
 
   public Index() {

@@ -4,10 +4,10 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.kFrontLeft;
-import static frc.robot.Constants.Motors.kFrontRight;
-import static frc.robot.Constants.Motors.kRearLeft;
-import static frc.robot.Constants.Motors.kRearRight;
+import static frc.robot.Constants.Motors.FrontLeft;
+import static frc.robot.Constants.Motors.FrontRight;
+import static frc.robot.Constants.Motors.RearLeft;
+import static frc.robot.Constants.Motors.RearRight;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -19,10 +19,10 @@ import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
 
-  final private CANSparkMax frontLeft = new CANSparkMax(kFrontLeft, MotorType.kBrushless);
-  final private CANSparkMax frontRight = new CANSparkMax(kFrontRight, MotorType.kBrushless);
-  final private CANSparkMax rearLeft = new CANSparkMax(kRearLeft, MotorType.kBrushless);
-  final private CANSparkMax rearRight = new CANSparkMax(kRearRight, MotorType.kBrushless);
+  final private CANSparkMax frontLeft = new CANSparkMax(FrontLeft, MotorType.kBrushless);
+  final private CANSparkMax frontRight = new CANSparkMax(FrontRight, MotorType.kBrushless);
+  final private CANSparkMax rearLeft = new CANSparkMax(RearLeft, MotorType.kBrushless);
+  final private CANSparkMax rearRight = new CANSparkMax(RearRight, MotorType.kBrushless);
 
   final private RelativeEncoder frontLeftEnc = frontLeft.getEncoder();
   final private RelativeEncoder frontRightEnc = frontRight.getEncoder();
@@ -41,7 +41,7 @@ public class Drivetrain extends SubsystemBase {
 
     // Deadband is zero so that it doesn't affect any autonomous code
     // Add deadzone to the inputs themselves
-    mecanumDrive.setDeadband(Constants.kdeadband);
+    mecanumDrive.setDeadband(Constants.deadband);
 
     frontLeftEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);
     frontRightEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);

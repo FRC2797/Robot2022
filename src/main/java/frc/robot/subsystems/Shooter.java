@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.kShooter1;
-import static frc.robot.Constants.Motors.kShooter2;
+import static frc.robot.Constants.Motors.Shooter1;
+import static frc.robot.Constants.Motors.Shooter2;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
 
-  private CANSparkMax leftMotor = new CANSparkMax(kShooter1, MotorType.kBrushless);
-  private CANSparkMax rightMotor = new CANSparkMax(kShooter2, MotorType.kBrushless);
+  private CANSparkMax leftMotor = new CANSparkMax(Shooter1, MotorType.kBrushless);
+  private CANSparkMax rightMotor = new CANSparkMax(Shooter2, MotorType.kBrushless);
   private MotorControllerGroup flyWheelMotors = new MotorControllerGroup(leftMotor, rightMotor);
 
   public Shooter() {

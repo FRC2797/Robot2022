@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.kIntake;
+import static frc.robot.Constants.Motors.Intake;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
-  CANSparkMax intakeMotor = new CANSparkMax(kIntake, MotorType.kBrushless);
+  CANSparkMax intakeMotor = new CANSparkMax(Intake, MotorType.kBrushless);
 
   public Intake() {
     intakeMotor.setInverted(true);
