@@ -16,10 +16,13 @@
       "/LiveWindow/Index": "Subsystem",
       "/LiveWindow/Intake": "Subsystem",
       "/LiveWindow/Limelight": "Subsystem",
+      "/LiveWindow/Navx": "Subsystem",
       "/LiveWindow/Shooter": "Subsystem",
       "/LiveWindow/Ungrouped/MecanumDrive[1]": "MecanumDrive",
       "/LiveWindow/Ungrouped/MecanumDrive[2]": "MecanumDrive",
-      "/LiveWindow/Ungrouped/Scheduler": "Scheduler"
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro"
     },
     "windows": {
       "/LiveWindow/Ungrouped/MecanumDrive[1]": {

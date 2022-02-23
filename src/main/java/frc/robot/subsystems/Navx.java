@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Navx extends SubsystemBase {
     private AHRS ahrs = new AHRS();
-
+    
     public Navx() {
     }
 
@@ -37,16 +37,17 @@ public class Navx extends SubsystemBase {
         ahrs.getAngle();
     }
 
+    //doesn't work
     public double getDistance() {
         // a^2 + b^2 = c^2
-        // sqrt((a^2) + (b^2)) = c
+        // sqrt((a^2) + (b^2)) = c      a
 
         //returns it in meters
         return Math.sqrt((ahrs.getDisplacementX() * ahrs.getDisplacementX())
                 + (ahrs.getDisplacementY() * ahrs.getDisplacementY()));
     }
 
-    //FIXME: It might not be roll, it might be pitch or yaw
+    
     public double getRotation() {
         return ahrs.getAngle();
     } 

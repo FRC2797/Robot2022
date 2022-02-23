@@ -4,21 +4,21 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Aiming;
+import frc.robot.commands.DriveDistance;
+import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -29,23 +29,24 @@ import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
   final public Drivetrain drivetrain = new Drivetrain();
-  final public XboxController xboxController = new XboxController(0);
   final private Shooter shooter = new Shooter();
   final private Intake intake = new Intake();
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
-  public double waitNumber = SmartDashboard.getNumber("wait", 99);
+
+  final public XboxController xboxController = new XboxController(0);
 
   final private JoystickButton rBump = new JoystickButton(xboxController, Button.kRightBumper.value);
   final private JoystickButton lBump = new JoystickButton(xboxController, Button.kLeftBumper.value);
   final private JoystickButton bButt = new JoystickButton(xboxController, Button.kB.value);
   final private JoystickButton aButt = new JoystickButton(xboxController, Button.kA.value);
   final private JoystickButton yButt = new JoystickButton(xboxController, Button.kY.value);
+  final private JoystickButton xButt = new JoystickButton(xboxController, Button.kX.value);
 
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
-      if (xboxController.getRightTriggerAxis() > 0.05) {
+      if (xboxController.getRightTriggerAxis() > Constants.triggerDeadzone) {
         return true;
       } else {
         return false;
@@ -54,7 +55,7 @@ public class RobotContainer {
   };
   final private Trigger lTrig = new Trigger() {
     public boolean get() {
-      if (xboxController.getLeftTriggerAxis() > 0.2) {
+      if (xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone) {
         return true;
       } else {
         return false;
@@ -62,8 +63,9 @@ public class RobotContainer {
     };
   };
 
+  // Command
   public RobotContainer() {
-    navx.reset();
+    resetEncoders();
 
     limelight.setDefaultCommand(
         new RunCommand(() -> {
@@ -73,27 +75,37 @@ public class RobotContainer {
         }, limelight));
 
     // DRIVING
+    // TODO: Add deadzone
     RunCommand teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
-              xboxController.getLeftY() * -1,
-              xboxController.getLeftX(),
-              xboxController.getRightX());
-          displayControllerSticks();
+              inputFilter( xboxController.getLeftY()),
+              inputFilter(xboxController.getLeftX()),
+              inputFilter(xboxController.getRightX()));
         }, drivetrain);
 
     DrivetrainTest drivetrainTest = new DrivetrainTest(drivetrain);
-    drivetrain.setDefaultCommand(drivetrainTest);
+    drivetrain.setDefaultCommand(teleopDriving);
 
     configureButtonBindings();
   }
 
-  // TODO: figure out a way to have switchable schemes
+  public void resetEncoders() {
+    drivetrain.resetEncoders();
+    index.resetEncoder();
+    navx.reset();
+  }   
+
+  // TODO: make the scheme switchable, maybe only use triggers and have them look at a boolean?
+  // Conditional commands?
   public void configureButtonBindings() {
 
-    double limit = 0.5;
-    rTrig.whenActive(() -> shooter.setSpeed(Math.min(xboxController.getRightTriggerAxis(), limit)))
+    rTrig
+        .whenActive(() -> shooter.setSpeed(Math.min(xboxController.getRightTriggerAxis(), Constants.shooterPowerLimit)))
         .whenInactive(() -> shooter.setSpeed(0));
+
+    // TODO: Change the intake and index controls to schedule and unschedule a
+    // single command
     lBump.whenPressed(new InstantCommand(intake::on, intake))
         .whenReleased(new InstantCommand(intake::off, intake));
 
@@ -103,15 +115,24 @@ public class RobotContainer {
     bButt.whenPressed(new InstantCommand(() -> intake.on(), intake))
         .whenReleased(() -> intake.off(), intake);
 
-    aButt.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(index::on, index),
-            new ParallelDeadlineGroup(new WaitCommand(Constants.indexWaitTime), new RunCommand(() -> {
-            }, index)),
-            new InstantCommand(index::off, index)));
+    aButt.whenPressed(new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime));
 
-    yButt.whenPressed(new Aiming(limelight, drivetrain, shooter));
 
-    SmartDashboard.putData("reset gyro", new InstantCommand(navx::reset, navx));
+    //FIXME: This doesn't work, the with interrupt reads the getOutputRotations before the encoders are reset, gonna have to add a wait or something
+    Command indexOnce = new StartEndCommand(() -> {
+      index.resetEncoder();
+      index.slowOn();
+    }, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 1);
+    
+    yButt.whenPressed(new DriveDistance(3, drivetrain, navx));
+
+    xButt.whenPressed(new InstantCommand(index::resetEncoder)); 
+
+  }
+
+  public double inputFilter(double input) {
+    //TODO: Add deadzone to constants
+    return input <= 0.2 && input >= -0.2 ? 0 : input; 
   }
 
   public void displayControllerSticks() {
@@ -121,18 +142,20 @@ public class RobotContainer {
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
   }
 
-  // SlewRateLimiter but it doesn't limit decrease
-  public double customRateLimit(SlewRateLimiter limiter, double input) {
-    double calculation = limiter.calculate(input);
-    if (calculation > input) {
-      limiter.reset(input);
-      return input;
-    } else {
-      return calculation;
-    }
-  }
-
   public Command getAutonomousCommand() {
-    return new SequentialCommandGroup(); //new SequentialCommandGroup(new InstantCommand(intake::on, intake))
+    Command intakeOn = new RunCommand(intake::on, intake);
+
+    return new SequentialCommandGroup(
+        new ScheduleCommand(intakeOn),
+        new DriveDistance(Constants.driveDistance, drivetrain, navx),
+        new DriveRotation(180, true, drivetrain, navx),
+        new Aiming(limelight, drivetrain, shooter),
+        new ScheduleCommand(
+            new RunCommand(() -> shooter.setSpeedDistance(limelight.getDistance()), shooter, limelight)),
+        new WaitCommand(Constants.spinUpTime),
+        new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime),
+        new WaitCommand(Constants.spinUpTime / 3),
+        new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime));
+
   }
 }

@@ -8,18 +8,20 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Navx;
 
-//Code copied and pasted from the limelight documentation
+//TODO: Needs testing
 public class DriveRotation extends CommandBase {
     Drivetrain drivetrain;
     Navx navx;
     double rotation;
     double initialRotation;
+    boolean isClockwise; 
 
     // distance should be given in feet
-    public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx) {
+    public DriveRotation(double rotation, boolean isClockwise, Drivetrain drivetrain, Navx navx) {
         this.drivetrain = drivetrain;
         this.navx = navx;
         this.rotation = rotation;
+        this.isClockwise = isClockwise; 
         addRequirements(drivetrain, navx);
     }
 
@@ -30,7 +32,7 @@ public class DriveRotation extends CommandBase {
 
     @Override
     public void execute() {
-        drivetrain.drive(0, 0, 1);
+        drivetrain.drive(0, 0, isClockwise ? 1 : -1);
     }
 
     @Override

@@ -4,24 +4,22 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Navx;
 
-//Code copied and pasted from the limelight documentation
+//TODO: Needs testing
 public class DriveDistance extends CommandBase {
     Drivetrain drivetrain;
     Navx navx;
+    double rotation;
     double distance;
-    BangBangController bangController; 
-
+    //TODO: If it doesn't work, then use the getCPR method of the encoders to calculate constants
     //distance should be given in feet
     public DriveDistance(double distance, Drivetrain drivetrain, Navx navx) {
         this.drivetrain = drivetrain; 
         this.navx = navx; 
         this.distance = distance;
-        bangController = new BangBangController(0.1);
         addRequirements(drivetrain, navx);
     }
 
@@ -32,8 +30,13 @@ public class DriveDistance extends CommandBase {
 
     @Override
     public void execute() {
-        //TODO: This needs to be tested. The getRotation is assumed that if it goes back to the original rotation it goes back to zero.
-        drivetrain.drive(1, 0, bangController.calculate(navx.getRotation(), 0));
+        /* TODO: - The getRotation is assumed that if it goes back to the original rotation it goes back to zero. 
+                 - Might need a really low Proportional term
+        */
+        
+        double error = navx.getRotation();
+        //FIXME: the rotation autocorrecting isn't working
+        drivetrain.drive(1, 0, 0);
     
     }
 
@@ -45,6 +48,6 @@ public class DriveDistance extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return navx.getDistance() >= distance ? true : false;
+        return drivetrain.getDistanceDriven() >= distance ? true : false;
     }
 }

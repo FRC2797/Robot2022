@@ -4,11 +4,11 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Motors.*;
+import static frc.robot.Constants.Motors.kIndex;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,11 +19,12 @@ public class Index extends SubsystemBase {
   private RelativeEncoder encoder = motor.getEncoder(); 
 
   public Index() {
+    encoder.setPositionConversionFactor(Constants.encoderConstantsIndex.outputRotationInAInputRotation); 
   }
 
   @Override
   public void periodic() {
-
+    SmartDashboard.putNumber("index encoder", getOutputRotations());
   }
 
   @Override
@@ -31,11 +32,23 @@ public class Index extends SubsystemBase {
   }
 
   public void on() {
-    motor.set(-0.6);
+    motor.set(Constants.indexPower);
+  }
+
+  public void slowOn() {
+    motor.set(0.1);
   }
 
   public void off() {
     motor.set(0);
+  }
+
+  public void resetEncoder() {
+    encoder.setPosition(0);
+  }
+
+  public double getOutputRotations() {
+    return encoder.getPosition(); 
   }
 
 }

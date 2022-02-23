@@ -4,77 +4,76 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import static frc.robot.Constants.Motors.kFrontLeft;
+import static frc.robot.Constants.Motors.kFrontRight;
+import static frc.robot.Constants.Motors.kRearLeft;
+import static frc.robot.Constants.Motors.kRearRight;
+
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-import static frc.robot.Constants.Motors.*;
-
-
-
 public class Drivetrain extends SubsystemBase {
-  
-  
 
+  final private CANSparkMax frontLeft = new CANSparkMax(kFrontLeft, MotorType.kBrushless);
+  final private CANSparkMax frontRight = new CANSparkMax(kFrontRight, MotorType.kBrushless);
+  final private CANSparkMax rearLeft = new CANSparkMax(kRearLeft, MotorType.kBrushless);
+  final private CANSparkMax rearRight = new CANSparkMax(kRearRight, MotorType.kBrushless);
 
-  private CANSparkMax frontLeft = new CANSparkMax(kFrontLeft, MotorType.kBrushless);
-  private CANSparkMax frontRight = new CANSparkMax(kFrontRight, MotorType.kBrushless);
-  private CANSparkMax rearLeft = new CANSparkMax(kRearLeft, MotorType.kBrushless);
-  private CANSparkMax rearRight = new CANSparkMax(kRearRight, MotorType.kBrushless);
-  
-  private RelativeEncoder frontLeftEnc = frontLeft.getEncoder();
-  private RelativeEncoder frontRightEnc = frontRight.getEncoder();
-  private RelativeEncoder rearLeftEnc = rearLeft.getEncoder();
-  private RelativeEncoder rearRightEnc = rearRight.getEncoder();
+  final private RelativeEncoder frontLeftEnc = frontLeft.getEncoder();
+  final private RelativeEncoder frontRightEnc = frontRight.getEncoder();
+  final private RelativeEncoder rearLeftEnc = rearLeft.getEncoder();
+  final private RelativeEncoder rearRightEnc = rearRight.getEncoder();
 
-
-  //Motors for old bot
-  // private WPI_TalonFX frontLeft = new WPI_TalonFX(2);
-  // private WPI_TalonFX frontRight = new WPI_TalonFX(3);
-  // private WPI_TalonFX rearLeft = new WPI_TalonFX(1);
-  // private WPI_TalonFX rearRight = new WPI_TalonFX(4);
-  
-  private final MecanumDrive drivetrain = new MecanumDrive(frontLeft, rearLeft, frontRight, rearRight);
-
-
-  
-  private MecanumDrive mecanumDrive = new MecanumDrive(
-    frontLeft,
-    rearLeft,
-    frontRight,
-    rearRight
-  );
-
-  
+  final private MecanumDrive mecanumDrive = new MecanumDrive(
+      frontLeft,
+      rearLeft,
+      frontRight,
+      rearRight);
 
   public Drivetrain() {
-    mecanumDrive.setDeadband(Constants.kdeadband);
     rearRight.setInverted(true);
     frontRight.setInverted(true);
+
+    // Deadband is zero so that it doesn't affect any autonomous code
+    // Add deadzone to the inputs themselves
+    mecanumDrive.setDeadband(Constants.kdeadband);
+
+    frontLeftEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);
+    frontRightEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);
+    rearLeftEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);
+    rearRightEnc.setPositionConversionFactor(Constants.encoderConstantsDrivetrain.outputRotationInAInputRotation);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Front left encoder", frontLeftEnc.getVelocity());
-    SmartDashboard.putNumber("Front right encoder", frontRightEnc.getVelocity());
-    SmartDashboard.putNumber("rear left encoder", rearLeftEnc.getVelocity());
-    SmartDashboard.putNumber("rear right encoder", rearRightEnc.getVelocity());
   }
-  
+
   @Override
   public void simulationPeriodic() {
   }
-  
+
   public void drive(double forwardSpeed, double sidewaysSpeed, double rotation) {
     mecanumDrive.driveCartesian(forwardSpeed, sidewaysSpeed, rotation);
-    // mecanumDrive.driveCartesian(ySpeed, xSpeed, zRotation);
   }
-  
-   
+
+  public void resetEncoders() {
+    frontLeftEnc.setPosition(0);
+    frontRightEnc.setPosition(0);
+    rearLeftEnc.setPosition(0);
+    rearRightEnc.setPosition(0);
+  }
+
+  public double getDistanceDriven() {
+    return Constants.encoderConstantsDrivetrain.wheelCircumference / getWheelRotation();
+  }
+
+  public double getWheelRotation() {
+    return (frontLeftEnc.getPosition() + frontRightEnc.getPosition() + rearLeftEnc.getPosition()
+        + rearRightEnc.getPosition()) / 4;
+  }
 }

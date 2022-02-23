@@ -39,9 +39,8 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance() {
-    //TODO: Set the mounting angle back to the constant
     return (Constants.heightDifference) /
-        tan(toRadians(smartDashboardMountingAngle +
+        tan(toRadians(Constants.mountingAngle +
             verticalOffset.getDouble(-99)));
   }
 
@@ -58,7 +57,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public void setPipeline(int index) {
-
+    table.getEntry("pipeline").setNumber(index);
   }
 
 }

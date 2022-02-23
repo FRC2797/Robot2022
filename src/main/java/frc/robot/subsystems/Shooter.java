@@ -4,15 +4,15 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.Motors.kShooter1;
+import static frc.robot.Constants.Motors.kShooter2;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import static frc.robot.Constants.Motors.*;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
 public class Shooter extends SubsystemBase {
 
@@ -36,8 +36,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Sim Shooter Values", flyWheelMotors.get()); 
   }
 
-  public void shoot(double distance) {
-
+  public void setSpeedDistance(double distance) {
+    flyWheelMotors.set(distance);
   }
 
  public void setSpeed(double speed) {
