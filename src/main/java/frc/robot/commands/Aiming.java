@@ -36,11 +36,17 @@ public class Aiming extends CommandBase {
         SmartDashboard.putNumber("kP", 0.05);
         SmartDashboard.putNumber("kI", 0);
         SmartDashboard.putNumber("kD", 0);
+        
+        // Makes it so it won't crash in simulation
+        if (limelight == null) {
+            System.out.println("ERROR Limelight is null");
+            cancel();
+        }
         if (!limelight.getHasTarget()) {
             new StartEndCommand(() -> xboxController.setRumble(RumbleType.kRightRumble, 0.5),
                     () -> xboxController.setRumble(RumbleType.kRightRumble, 0)).withTimeout(0.2).schedule();
-            cancel();
         }
+
     }
 
     @Override
