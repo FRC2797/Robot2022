@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Aiming;
 import frc.robot.commands.DriveDistance;
@@ -44,6 +45,46 @@ public class RobotContainer {
   final private JoystickButton aButt = new JoystickButton(xboxController, XboxController.Button.kA.value);
   final private JoystickButton yButt = new JoystickButton(xboxController, XboxController.Button.kY.value);
   final private JoystickButton xButt = new JoystickButton(xboxController, XboxController.Button.kX.value);
+
+  final private Trigger dpadUp = new Trigger() {
+    public boolean get() {
+      if (xboxController.getPOV() == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+  };
+
+  final private Trigger dpadRight = new Trigger() {
+    public boolean get() {
+      if (xboxController.getPOV() == 90) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+  };
+
+  final private Trigger dpadDown = new Trigger() {
+    public boolean get() {
+      if (xboxController.getPOV() == 180) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+  };
+
+  final private Trigger dpadLeft = new Trigger() {
+    public boolean get() {
+      if (xboxController.getPOV() == 270) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+  };
 
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
@@ -119,6 +160,7 @@ public class RobotContainer {
     rBump.whenPressed(() -> indexOnce.schedule());
     rTrig.whileActiveOnce(new ScheduleCommand(shooterOnOff))
         .whenInactive(new InstantCommand(() -> shooterOnOff.cancel()));
+
 
   }
 
