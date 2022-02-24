@@ -14,7 +14,6 @@ public class DriveDistance extends CommandBase {
     Navx navx;
     double rotation;
     double distance;
-    //TODO: If it doesn't work, then use the getCPR method of the encoders to calculate constants
     //distance should be given in feet
     public DriveDistance(double distance, Drivetrain drivetrain, Navx navx) {
         this.drivetrain = drivetrain; 

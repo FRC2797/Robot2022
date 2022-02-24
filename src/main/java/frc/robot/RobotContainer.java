@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -28,7 +29,6 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Navx;
 import frc.robot.subsystems.Shooter;
 
-
 public class RobotContainer {
   final private Drivetrain drivetrain = new Drivetrain();
   final private Shooter shooter = new Shooter();
@@ -36,74 +36,89 @@ public class RobotContainer {
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
+  private boolean isManualBool = true;
 
   final private XboxController xboxController = new XboxController(0);
 
+  final private Trigger isManual = new Trigger() {
+    public boolean get() {
+      return isManualBool;
+    }
+  };
+
   final private JoystickButton rBump = new JoystickButton(xboxController, XboxController.Button.kRightBumper.value);
+  final private Trigger rBumpManual = rBump.and(isManual);
+  final private Trigger rBumpSemiAuto = rBump.and(isManual.negate());
+
   final private JoystickButton lBump = new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value);
+  final private Trigger lBumpManual = lBump.and(isManual);
+  final private Trigger lBumpSemiAuto = lBump.and(isManual.negate());
+
   final private JoystickButton bButt = new JoystickButton(xboxController, XboxController.Button.kB.value);
+  final private Trigger bButtManual = bButt.and(isManual);
+  final private Trigger bButtSemiAuto = bButt.and(isManual.negate());
+
   final private JoystickButton aButt = new JoystickButton(xboxController, XboxController.Button.kA.value);
+  final private Trigger aButtManual = aButt.and(isManual);
+  final private Trigger aButtSemiAuto = aButt.and(isManual.negate());
+
   final private JoystickButton yButt = new JoystickButton(xboxController, XboxController.Button.kY.value);
+  final private Trigger yButtManual = yButt.and(isManual);
+  final private Trigger yButtSemiAuto = yButt.and(isManual.negate());
+
   final private JoystickButton xButt = new JoystickButton(xboxController, XboxController.Button.kX.value);
+  final private Trigger xButtManual = xButt.and(isManual);
+  final private Trigger xButtSemiAuto = xButt.and(isManual.negate());
+
+  final private JoystickButton startButt = new JoystickButton(xboxController, XboxController.Button.kStart.value);
 
   final private Trigger dpadUp = new Trigger() {
     public boolean get() {
-      if (xboxController.getPOV() == 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getPOV() == 0 ? true : false;
     };
   };
+  final private Trigger dpadUpManual = dpadUp.and(isManual);
+  final private Trigger dpadUpSemiAuto = dpadUp.and(isManual.negate());
 
   final private Trigger dpadRight = new Trigger() {
     public boolean get() {
-      if (xboxController.getPOV() == 90) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getPOV() == 90 ? true : false;
     };
   };
+  final private Trigger dpadRightManual = dpadRight.and(isManual);
+  final private Trigger dpadRightSemiAuto = dpadRight.and(isManual.negate());
 
   final private Trigger dpadDown = new Trigger() {
     public boolean get() {
-      if (xboxController.getPOV() == 180) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getPOV() == 180 ? true : false;
     };
   };
+  final private Trigger dpadDownManual = dpadDown.and(isManual);
+  final private Trigger dpadDownSemiAuto = dpadDown.and(isManual.negate());
 
   final private Trigger dpadLeft = new Trigger() {
     public boolean get() {
-      if (xboxController.getPOV() == 270) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getPOV() == 270 ? true : false;
     };
   };
+  final private Trigger dpadLeftManual = dpadLeft.and(isManual);
+  final private Trigger dpadLeftSemiAuto = dpadLeft.and(isManual.negate());
 
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
-      if (xboxController.getRightTriggerAxis() > Constants.triggerDeadzone) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getRightTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
+  final private Trigger rTrigManual = rTrig.and(isManual);
+  final private Trigger rTrigSemiAuto = rTrig.and(isManual.negate());
+
   final private Trigger lTrig = new Trigger() {
     public boolean get() {
-      if (xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone) {
-        return true;
-      } else {
-        return false;
-      }
+      return xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
+  final private Trigger lTrigManual = lTrig.and(isManual);
+  final private Trigger lTrigSemiAuto = lTrig.and(isManual.negate());
 
   // Command
   public RobotContainer() {
@@ -116,6 +131,7 @@ public class RobotContainer {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
           SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
+          SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight));
 
     // DRIVING
@@ -132,6 +148,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     configureButtonBindings();
+
   }
 
   // TODO: make the scheme switchable, maybe only use triggers and have them look
@@ -139,7 +156,7 @@ public class RobotContainer {
   // Conditional commands?
   public void configureButtonBindings() {
 
-    Command shooterOnOff = new FunctionalCommand(() -> {
+    Command shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
     }, interrupt -> shooter.setSpeed(0), () -> {
@@ -155,18 +172,29 @@ public class RobotContainer {
     Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake);
     Command indexOnOff = new StartEndCommand(index::on, index::off, index);
 
-    lBump.whenPressed(() -> intakeOnOff.schedule()).whenReleased(() -> intakeOnOff.cancel());
-    yButt.whenPressed(new Aiming(limelight, drivetrain, shooter));
-    rBump.whenPressed(() -> indexOnce.schedule());
-    rTrig.whileActiveOnce(new ScheduleCommand(shooterOnOff))
-        .whenInactive(new InstantCommand(() -> shooterOnOff.cancel()));
+    Command AimShootThenIndex = null; //TODO: AimShootThenIndex needs to be coded
+      // () -> shooter.setSpeedDistance(limelight.getDistance()))
 
+    startButt.whenPressed(() -> {
+      isManualBool = isManualBool ? false : true;
+      CommandScheduler.getInstance().cancelAll();
+    });
+    
+    //Semi-autonomous
+    lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
+    // rTrigSemiAuto.whileActiveOnce(AimShootThenIndex); 
+    rBumpSemiAuto.whileActiveContinuous(indexOnce); 
+
+
+    // Manual
+    lTrigManual.whileActiveContinuous(intakeOnOff);
+    rTrigManual.whileActiveContinuous(shooterAnalog);
+    rBumpManual.whileActiveContinuous(indexOnOff);
 
   }
 
   public double inputFilter(double input) {
-    // TODO: Add deadzone to constants
-    return input <= 0.2 && input >= -0.2 ? 0 : input;
+    return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
   public void displayControllerSticks() {
