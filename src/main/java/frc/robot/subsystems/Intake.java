@@ -22,6 +22,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Intake encoder", intakeMotor.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Intake motor get()", intakeMotor.get()); 
 
   }
 

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -28,14 +29,14 @@ import frc.robot.subsystems.Navx;
 import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
-  final public Drivetrain drivetrain = new Drivetrain();
+  final private Drivetrain drivetrain = new Drivetrain();
   final private Shooter shooter = new Shooter();
   final private Intake intake = new Intake();
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
 
-  final public XboxController xboxController = new XboxController(0);
+  final private XboxController xboxController = new XboxController(0);
 
   final private JoystickButton rBump = new JoystickButton(xboxController, Button.kRightBumper.value);
   final private JoystickButton lBump = new JoystickButton(xboxController, Button.kLeftBumper.value);
@@ -65,7 +66,9 @@ public class RobotContainer {
 
   // Command
   public RobotContainer() {
-    resetEncoders();
+    drivetrain.resetEncoders();
+    index.resetEncoder();
+    navx.reset();
 
     limelight.setDefaultCommand(
         new RunCommand(() -> {
@@ -79,7 +82,7 @@ public class RobotContainer {
     RunCommand teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
-              inputFilter( xboxController.getLeftY()),
+              inputFilter(xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
         }, drivetrain);
@@ -90,49 +93,38 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
-  public void resetEncoders() {
-    drivetrain.resetEncoders();
-    index.resetEncoder();
-    navx.reset();
-  }   
-
-  // TODO: make the scheme switchable, maybe only use triggers and have them look at a boolean?
+  // TODO: make the scheme switchable, maybe only use triggers and have them look
+  // at a boolean?
   // Conditional commands?
   public void configureButtonBindings() {
 
-    rTrig
-        .whenActive(() -> shooter.setSpeed(Math.min(xboxController.getRightTriggerAxis(), Constants.shooterPowerLimit)))
-        .whenInactive(() -> shooter.setSpeed(0));
+    Command shooterOnOff = new FunctionalCommand(() -> {
+    }, () -> {
+      shooter.setSpeed((xboxController.getRightTriggerAxis()));
+    }, interrupt -> shooter.setSpeed(0), () -> {
+      return false;
+    }, shooter);
 
-    // TODO: Change the intake and index controls to schedule and unschedule a
-    // single command
-    lBump.whenPressed(new InstantCommand(intake::on, intake))
-        .whenReleased(new InstantCommand(intake::off, intake));
+    // The wait command is so that the interrupt boolean isn't checked before reset
+    // encoder is run
+    // TODO: Needs testing
+    Command indexOnce = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0)).andThen(
+        new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 2.25));
 
-    rBump.whileActiveOnce(new InstantCommand(index::on, index))
-        .whenInactive(new InstantCommand(index::off, index));
+    Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake);
+    Command indexOnOff = new StartEndCommand(index::on, index::off, index);
 
-    bButt.whenPressed(new InstantCommand(() -> intake.on(), intake))
-        .whenReleased(() -> intake.off(), intake);
-
-    aButt.whenPressed(new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime));
-
-
-    //FIXME: This doesn't work, the with interrupt reads the getOutputRotations before the encoders are reset, gonna have to add a wait or something
-    Command indexOnce = new StartEndCommand(() -> {
-      index.resetEncoder();
-      index.slowOn();
-    }, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 1);
-    
-    yButt.whenPressed(new DriveDistance(3, drivetrain, navx));
-
-    xButt.whenPressed(new InstantCommand(index::resetEncoder)); 
+    lBump.whenPressed(() -> intakeOnOff.schedule()).whenReleased(() -> intakeOnOff.cancel());
+    yButt.whenPressed(new Aiming(limelight, drivetrain, shooter));
+    rBump.whenPressed(() -> indexOnce.schedule());
+    rTrig.whileActiveOnce(new ScheduleCommand(shooterOnOff))
+        .whenInactive(new InstantCommand(() -> shooterOnOff.cancel()));
 
   }
 
   public double inputFilter(double input) {
-    //TODO: Add deadzone to constants
-    return input <= 0.2 && input >= -0.2 ? 0 : input; 
+    // TODO: Add deadzone to constants
+    return input <= 0.2 && input >= -0.2 ? 0 : input;
   }
 
   public void displayControllerSticks() {

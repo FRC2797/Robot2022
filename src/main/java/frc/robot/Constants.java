@@ -35,8 +35,8 @@ public final class Constants {
 
         public static final int Intake = 5;
         public static final int Index = 6;
-        public static final int Shooter1 = 7;
-        public static final int Shooter2 = 9;
+        public static final int leftShooter = 7;
+        public static final int rightShooter = 9;
         public static final int LeftClimber = 10;
         public static final int RightClimber = 11;
 
