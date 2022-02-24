@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -28,6 +27,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Navx;
 import frc.robot.subsystems.Shooter;
 
+
 public class RobotContainer {
   final private Drivetrain drivetrain = new Drivetrain();
   final private Shooter shooter = new Shooter();
@@ -38,12 +38,12 @@ public class RobotContainer {
 
   final private XboxController xboxController = new XboxController(0);
 
-  final private JoystickButton rBump = new JoystickButton(xboxController, Button.kRightBumper.value);
-  final private JoystickButton lBump = new JoystickButton(xboxController, Button.kLeftBumper.value);
-  final private JoystickButton bButt = new JoystickButton(xboxController, Button.kB.value);
-  final private JoystickButton aButt = new JoystickButton(xboxController, Button.kA.value);
-  final private JoystickButton yButt = new JoystickButton(xboxController, Button.kY.value);
-  final private JoystickButton xButt = new JoystickButton(xboxController, Button.kX.value);
+  final private JoystickButton rBump = new JoystickButton(xboxController, XboxController.Button.kRightBumper.value);
+  final private JoystickButton lBump = new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value);
+  final private JoystickButton bButt = new JoystickButton(xboxController, XboxController.Button.kB.value);
+  final private JoystickButton aButt = new JoystickButton(xboxController, XboxController.Button.kA.value);
+  final private JoystickButton yButt = new JoystickButton(xboxController, XboxController.Button.kY.value);
+  final private JoystickButton xButt = new JoystickButton(xboxController, XboxController.Button.kX.value);
 
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
