@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -159,9 +160,6 @@ public class RobotContainer {
 
   }
 
-  // TODO: make the scheme switchable, maybe only use triggers and have them look
-  // at a boolean?
-  // Conditional commands?
   public void configureButtonBindings() {
     // TODO: Make all the commands have names
     Command shooterAnalog = new FunctionalCommand(() -> {
@@ -177,24 +175,21 @@ public class RobotContainer {
     // The wait command is so that the interrupt boolean isn't checked before reset
     // encoder is run
     // TODO: Needs testing
-    // TODO: Move the output rotations to constants
     Command indexOnceFromIntake = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 2.25));
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexFromIntakeRotations));
 
     Command indexIntoShooter = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 0.33));
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexIntoShooterRotations));
 
     Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake);
     Command indexOnOff = new StartEndCommand(index::on, index::off, index);
 
-    // Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
-    // drivetrain, shooter), new ParallelCommandGroup(shooterRevLimelightDistance,
-    // ));
+    Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
+    drivetrain, shooter), new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter)));
 
-    // TODO: AimShootThenIndex needs to be coded
-    // () -> shooter.setSpeedDistance(limelight.getDistance()))
+
 
     startButt.whenPressed(() -> {
       isManualBool = isManualBool ? false : true;
@@ -203,8 +198,9 @@ public class RobotContainer {
 
     // Semi-autonomous
     lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
-    // rTrigSemiAuto.whileActiveOnce(AimShootThenIndex);
-    rBumpSemiAuto.whileActiveContinuous(indexOnceFromIntake);
+    //TODO: Need to make aimShootThenIndex stop when released
+    rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
+    rBumpSemiAuto.whileActiveOnce(indexOnceFromIntake);
 
     // Manual
     lTrigManual.whileActiveContinuous(intakeOnOff);
