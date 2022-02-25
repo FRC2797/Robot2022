@@ -45,6 +45,7 @@ public class Aiming extends CommandBase {
         if (!limelight.getHasTarget()) {
             new StartEndCommand(() -> xboxController.setRumble(RumbleType.kRightRumble, 0.5),
                     () -> xboxController.setRumble(RumbleType.kRightRumble, 0)).withTimeout(0.2).schedule();
+            cancel();
         }
 
     }

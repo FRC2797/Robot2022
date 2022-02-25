@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -71,6 +73,8 @@ public class RobotContainer {
   final private Trigger xButtSemiAuto = xButt.and(isManual.negate());
 
   final private JoystickButton startButt = new JoystickButton(xboxController, XboxController.Button.kStart.value);
+  // Back buttons is used for testing commands
+  final private JoystickButton backButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
 
   final private Trigger dpadUp = new Trigger() {
     public boolean get() {
@@ -144,7 +148,11 @@ public class RobotContainer {
               inputFilter(xboxController.getRightX()));
         }, drivetrain);
 
+    SendableRegistry.setName(teleopDriving, "teleopDriving");
+
     DrivetrainTest drivetrainTest = new DrivetrainTest(drivetrain);
+    SendableRegistry.setName(drivetrainTest, "drivetrainTest");
+
     drivetrain.setDefaultCommand(teleopDriving);
 
     configureButtonBindings();
@@ -155,7 +163,7 @@ public class RobotContainer {
   // at a boolean?
   // Conditional commands?
   public void configureButtonBindings() {
-
+    // TODO: Make all the commands have names
     Command shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
@@ -163,33 +171,48 @@ public class RobotContainer {
       return false;
     }, shooter);
 
+    Command shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
+        () -> shooter.setSpeed(0), shooter, limelight);
+
     // The wait command is so that the interrupt boolean isn't checked before reset
     // encoder is run
     // TODO: Needs testing
-    Command indexOnce = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0)).andThen(
-        new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 2.25));
+    // TODO: Move the output rotations to constants
+    Command indexOnceFromIntake = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
+        .andThen(
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 2.25));
+
+    Command indexIntoShooter = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
+        .andThen(
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= 0.33));
 
     Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake);
     Command indexOnOff = new StartEndCommand(index::on, index::off, index);
 
-    Command AimShootThenIndex = null; //TODO: AimShootThenIndex needs to be coded
-      // () -> shooter.setSpeedDistance(limelight.getDistance()))
+    // Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
+    // drivetrain, shooter), new ParallelCommandGroup(shooterRevLimelightDistance,
+    // ));
+
+    // TODO: AimShootThenIndex needs to be coded
+    // () -> shooter.setSpeedDistance(limelight.getDistance()))
 
     startButt.whenPressed(() -> {
       isManualBool = isManualBool ? false : true;
       CommandScheduler.getInstance().cancelAll();
     });
-    
-    //Semi-autonomous
-    lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
-    // rTrigSemiAuto.whileActiveOnce(AimShootThenIndex); 
-    rBumpSemiAuto.whileActiveContinuous(indexOnce); 
 
+    // Semi-autonomous
+    lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
+    // rTrigSemiAuto.whileActiveOnce(AimShootThenIndex);
+    rBumpSemiAuto.whileActiveContinuous(indexOnceFromIntake);
 
     // Manual
     lTrigManual.whileActiveContinuous(intakeOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
     rBumpManual.whileActiveContinuous(indexOnOff);
+
+    // testing
+    backButt.whileActiveContinuous(new Aiming(limelight, drivetrain, shooter));
 
   }
 
