@@ -8,10 +8,10 @@ import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Aiming;
 import frc.robot.commands.DriveDistance;
@@ -137,7 +136,7 @@ public class RobotContainer {
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
           SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
           SmartDashboard.putBoolean("isManual", isManualBool);
-        }, limelight));
+        }, limelight).withName("ll SmartDashboard.put() values"));
 
     // DRIVING
     // TODO: Add deadzone
@@ -167,27 +166,28 @@ public class RobotContainer {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
     }, interrupt -> shooter.setSpeed(0), () -> {
       return false;
-    }, shooter);
+    }, shooter).withName("shooterAnalog"); 
 
     Command shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
-        () -> shooter.setSpeed(0), shooter, limelight);
+        () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
     // The wait command is so that the interrupt boolean isn't checked before reset
     // encoder is run
     // TODO: Needs testing
+    // TODO: Both of the indexes are copy and pasted, definitely a better way to do this
     Command indexOnceFromIntake = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexFromIntakeRotations));
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexFromIntakeRotations)).withName("indexOnceFromIntake");
 
     Command indexIntoShooter = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexIntoShooterRotations));
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexIntoShooterRotations)).withName("indexIntoShooter");
 
-    Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake);
-    Command indexOnOff = new StartEndCommand(index::on, index::off, index);
+    Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
+    Command indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
 
     Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
-    drivetrain, shooter), new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter)));
+    drivetrain, shooter), new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter))).withName("aimShootThenIndex");
 
 
 
