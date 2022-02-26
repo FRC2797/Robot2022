@@ -139,12 +139,16 @@ public class RobotContainer {
     index.resetEncoder();
     navx.reset();
 
-    teleopDriving = new RunCommand(
+
+    /* The left y is inverted not because the drive method has negative be forward but because the controller returns a negative value
+    forward for left y */ 
+    Command teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
-              inputFilter(xboxController.getLeftY()),
+              inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
+              displayControllerSticks();
         }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {

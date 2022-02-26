@@ -25,15 +25,17 @@ public class Drivetrain extends SubsystemBase {
   final private RelativeEncoder rearLeftEnc = rearLeft.getEncoder();
   final private RelativeEncoder rearRightEnc = rearRight.getEncoder();
 
-  final private MecanumDrive mecanumDrive = new MecanumDrive(
-      frontLeft,
-      rearLeft,
-      frontRight,
-      rearRight);
+  final private MecanumDrive mecanumDrive;
 
   public Drivetrain() {
     rearRight.setInverted(true);
     frontRight.setInverted(true);
+
+    mecanumDrive = new MecanumDrive(
+      frontLeft,
+      rearLeft,
+      frontRight,
+      rearRight);
 
     // Deadband is zero so that it doesn't affect any autonomous code
     // Add deadzone to the inputs themselves
