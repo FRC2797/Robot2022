@@ -143,6 +143,8 @@ public class RobotContainer {
       return false;
     }, shooter).withName("shooterAnalog");
 
+
+    //FIXME: Might not be getting limelight distance properly each time this command is used 
     Command shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
@@ -181,14 +183,14 @@ public class RobotContainer {
     });
 
     // Semi-autonomous
-    lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
+    lTrigSemiAuto.whileActiveOnce(intakeOnOff);
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
     rBumpSemiAuto.whileActiveOnce(indexOnceFromIntake);
 
     // Manual
-    lTrigManual.whileActiveContinuous(intakeOnOff);
+    lTrigManual.whileActiveOnce(intakeOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-    rBumpManual.whileActiveContinuous(indexOnOff);
+    rBumpManual.whileActiveOnce(indexOnOff);
 
     // testing
     backButt.whileActiveContinuous(new Aiming(limelight, drivetrain, shooter));
