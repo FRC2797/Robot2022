@@ -126,7 +126,7 @@ public class RobotContainer {
   Command teleopDriving;
   Command shooterAnalog;
   Command shooterRevLimelightDistance;
-  Command indexOnceFromIntake;
+  Command indexFromIntake;
   Command indexIntoShooter;
   Command intakeOnOff;
   Command indexOnOff;
@@ -158,7 +158,7 @@ public class RobotContainer {
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
     // TODO: Needs testing
-    indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
+    indexFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
 
     indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
 
@@ -191,7 +191,7 @@ public class RobotContainer {
     // Semi-autonomous
     lTrigSemiAuto.whileActiveOnce(intakeOnOff);
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
-    rBumpSemiAuto.whileActiveOnce(indexOnceFromIntake);
+    rBumpSemiAuto.whileActiveOnce(indexFromIntake);
 
     // Manual
     lTrigManual.whileActiveOnce(intakeOnOff);
@@ -233,6 +233,6 @@ public class RobotContainer {
         new DriveRotation(180, true, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
-                new WaitCommand(Constants.shooterSpinUpTime / 3), indexOnceFromIntake, indexIntoShooter)))));
+                new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));
   }
 }
