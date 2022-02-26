@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -132,7 +133,6 @@ public class RobotContainer {
   Command aimShootThenIndex;
   Command drivetrainTest;
 
-
   // Command
   public RobotContainer() {
     drivetrain.resetEncoders();
@@ -157,9 +157,6 @@ public class RobotContainer {
     shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
-
-        
-    
     // TODO: Needs testing
     indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
 
@@ -170,11 +167,12 @@ public class RobotContainer {
 
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
-        new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
-            .withName("aimShootThenIndex");
+        new ParallelRaceGroup(shooterRevLimelightDistance,
+            new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
+                .withName("aimShootThenIndex");
 
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
-    
+
     limelight.setDefaultCommand(
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
@@ -182,8 +180,7 @@ public class RobotContainer {
           SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
-    
-    
+
     drivetrain.setDefaultCommand(teleopDriving);
 
     startButt.whenPressed(() -> {
@@ -228,19 +225,14 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    Command intakeOn = new RunCommand(intake::on, intake);
 
+    // We start with one ball ready to index into shooter
     return new SequentialCommandGroup(
-        new ScheduleCommand(intakeOn),
-        new DriveDistance(Constants.driveDistance, drivetrain, navx),
-        new DriveRotation(180, true, drivetrain, navx),
-        new Aiming(limelight, drivetrain, shooter),
-        new ScheduleCommand(
-            new RunCommand(() -> shooter.setSpeedDistance(limelight.getDistance()), shooter, limelight)),
-        new WaitCommand(Constants.shooterSpinUpTime),
-        new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime),
-        new WaitCommand(Constants.shooterSpinUpTime / 3),
-        new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime));
-
+      new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
+        new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
+        new DriveRotation(180, true, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+        new ParallelCommandGroup(shooterRevLimelightDistance,
+            new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
+                new WaitCommand(Constants.shooterSpinUpTime / 3), indexOnceFromIntake, indexIntoShooter)))));
   }
 }

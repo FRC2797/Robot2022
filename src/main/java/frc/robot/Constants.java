@@ -50,12 +50,11 @@ public final class Constants {
     // Xbox Controller Constants
     public static final double triggerDeadzone = 0.05;
     public static final double drivingDeadzone = 0.2;
-    public static final double shooterPowerLimit = 1;
 
     // Auto Constants
     // TODO: Need to get right constant, look at field, might need multiple so that
     // we can start in multiple spots
-    public static final double driveDistance = 0;
+    public static final double autoDriveDistance = 0;
 
     // Limelight constants
     // All in inches
