@@ -122,13 +122,24 @@ public class RobotContainer {
   final private Trigger lTrigManual = lTrig.and(isManual);
   final private Trigger lTrigSemiAuto = lTrig.and(isManual.negate());
 
+  Command teleopDriving;
+  Command shooterAnalog;
+  Command shooterRevLimelightDistance;
+  Command indexOnceFromIntake;
+  Command indexIntoShooter;
+  Command intakeOnOff;
+  Command indexOnOff;
+  Command aimShootThenIndex;
+  Command drivetrainTest;
+
+
   // Command
   public RobotContainer() {
     drivetrain.resetEncoders();
     index.resetEncoder();
     navx.reset();
 
-    Command teleopDriving = new RunCommand(
+    teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
               inputFilter(xboxController.getLeftY()),
@@ -136,35 +147,33 @@ public class RobotContainer {
               inputFilter(xboxController.getRightX()));
         }, drivetrain).withName("teleopDriving");
 
-    Command shooterAnalog = new FunctionalCommand(() -> {
+    shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
     }, interrupt -> shooter.setSpeed(0), () -> {
       return false;
     }, shooter).withName("shooterAnalog");
 
-
-    //FIXME: Might not be getting limelight distance properly each time this command is used 
-    Command shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
+    shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
 
         
     
     // TODO: Needs testing
-    Command indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
+    indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
 
-    Command indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
+    indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
 
-    Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
-    Command indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
+    intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
+    indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
 
-    Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
+    aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
         new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
             .withName("aimShootThenIndex");
 
-    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
+    drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
     
     limelight.setDefaultCommand(
         new RunCommand(() -> {
