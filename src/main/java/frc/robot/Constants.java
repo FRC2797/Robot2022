@@ -76,8 +76,8 @@ public final class Constants {
     // Index
     public static final double indexWaitTime = 0.5;
     public static final double indexPower = -0.6;
-    public static final double indexFromIntakeRotations = 2.25;
-    public static final double indexIntoShooterRotations = 0.33;
+    public static final double indexFromIntakeRevolutions = 2.25;
+    public static final double indexIntoShooterRevolutions = 0.33;
 
     // Shooter
     public static final double spinUpTime = 1;

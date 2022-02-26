@@ -8,7 +8,6 @@ import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -160,7 +159,6 @@ public class RobotContainer {
   }
 
   public void configureButtonBindings() {
-    // TODO: Make all the commands have names
     Command shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
@@ -174,14 +172,9 @@ public class RobotContainer {
     // The wait command is so that the interrupt boolean isn't checked before reset
     // encoder is run
     // TODO: Needs testing
-    // TODO: Both of the indexes are copy and pasted, definitely a better way to do this
-    Command indexOnceFromIntake = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
-        .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexFromIntakeRotations)).withName("indexOnceFromIntake");
-
-    Command indexIntoShooter = new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
-        .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= Constants.indexIntoShooterRotations)).withName("indexIntoShooter");
+    Command indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
+    
+    Command indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
 
     Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
     Command indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
@@ -221,6 +214,12 @@ public class RobotContainer {
     SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
     SmartDashboard.putNumber("Right X", xboxController.getRightX());
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
+  }
+
+  private Command indexRevolve(double revolutions, String name) {
+    return new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
+        .andThen(
+            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= revolutions)).withName(name);
   }
 
   public Command getAutonomousCommand() {
