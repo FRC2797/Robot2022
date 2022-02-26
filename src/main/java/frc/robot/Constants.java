@@ -80,7 +80,9 @@ public final class Constants {
     public static final double indexIntoShooterRevolutions = 0.33;
 
     // Shooter
-    public static final double spinUpTime = 1;
+    public static final double shooterSpinUpTime = 0.1;
+    public static final double shooterGearRatio = 1;
+
 
     // Auto Constants
     public static final double forwardTime = 0;

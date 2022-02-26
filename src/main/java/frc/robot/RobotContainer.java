@@ -159,7 +159,7 @@ public class RobotContainer {
 
     Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
-        new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter)))
+        new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
             .withName("aimShootThenIndex");
 
     Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
@@ -226,9 +226,9 @@ public class RobotContainer {
         new Aiming(limelight, drivetrain, shooter),
         new ScheduleCommand(
             new RunCommand(() -> shooter.setSpeedDistance(limelight.getDistance()), shooter, limelight)),
-        new WaitCommand(Constants.spinUpTime),
+        new WaitCommand(Constants.shooterSpinUpTime),
         new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime),
-        new WaitCommand(Constants.spinUpTime / 3),
+        new WaitCommand(Constants.shooterSpinUpTime / 3),
         new StartEndCommand(index::on, index::off, index).withTimeout(Constants.indexWaitTime));
 
   }

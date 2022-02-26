@@ -8,6 +8,7 @@ import static frc.robot.Constants.Motors.leftShooter;
 import static frc.robot.Constants.Motors.rightShooter;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -18,6 +19,9 @@ public class Shooter extends SubsystemBase {
 
   private CANSparkMax leftMotor = new CANSparkMax(leftShooter, MotorType.kBrushless);
   private CANSparkMax rightMotor = new CANSparkMax(rightShooter, MotorType.kBrushless);
+  private RelativeEncoder leftEnc = leftMotor.getEncoder();
+  private RelativeEncoder rightEnc = rightMotor.getEncoder();
+
   private MotorControllerGroup flyWheelMotors = new MotorControllerGroup(leftMotor, rightMotor);
 
   public Shooter() {
@@ -26,8 +30,8 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("left Motor encoder", leftMotor.getEncoder().getVelocity()); 
-    SmartDashboard.putNumber("right motor encoder", rightMotor.getEncoder().getVelocity()); 
+    SmartDashboard.putNumber("left Motor RPM", leftEnc.getVelocity()); 
+    SmartDashboard.putNumber("right motor RPM", rightEnc.getVelocity()); 
     
   }
 
@@ -37,7 +41,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void setSpeedDistance(double distance) {
-    flyWheelMotors.set(distance);
+    flyWheelMotors.set(0);
   }
 
  public void setSpeed(double speed) {
