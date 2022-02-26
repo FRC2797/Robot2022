@@ -128,16 +128,6 @@ public class RobotContainer {
     index.resetEncoder();
     navx.reset();
 
-    limelight.setDefaultCommand(
-        new RunCommand(() -> {
-          SmartDashboard.putNumber("Distance", limelight.getDistance());
-          SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
-          SmartDashboard.putBoolean("isManual", isManualBool);
-        }, limelight).withName("ll SmartDashboard.put() values"));
-
-    // DRIVING
-    // TODO: Add deadzone
     Command teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
@@ -146,39 +136,44 @@ public class RobotContainer {
               inputFilter(xboxController.getRightX()));
         }, drivetrain).withName("teleopDriving");
 
-
-    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
-    drivetrain.setDefaultCommand(teleopDriving);
-
-    configureButtonBindings();
-
-  }
-
-  public void configureButtonBindings() {
     Command shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
       shooter.setSpeed((xboxController.getRightTriggerAxis()));
     }, interrupt -> shooter.setSpeed(0), () -> {
       return false;
-    }, shooter).withName("shooterAnalog"); 
+    }, shooter).withName("shooterAnalog");
 
     Command shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
-    // The wait command is so that the interrupt boolean isn't checked before reset
-    // encoder is run
+
+        
+    
     // TODO: Needs testing
     Command indexOnceFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
-    
+
     Command indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
 
     Command intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
     Command indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
 
     Command aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
-    drivetrain, shooter), new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter))).withName("aimShootThenIndex");
+        drivetrain, shooter),
+        new ParallelRaceGroup(shooterRevLimelightDistance, new WaitCommand(0.1).andThen(indexIntoShooter)))
+            .withName("aimShootThenIndex");
 
-
+    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
+    
+    limelight.setDefaultCommand(
+        new RunCommand(() -> {
+          SmartDashboard.putNumber("Distance", limelight.getDistance());
+          SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
+          SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
+          SmartDashboard.putBoolean("isManual", isManualBool);
+        }, limelight).withName("ll SmartDashboard.put() values"));
+    
+    
+    drivetrain.setDefaultCommand(teleopDriving);
 
     startButt.whenPressed(() -> {
       isManualBool = isManualBool ? false : true;
@@ -187,7 +182,6 @@ public class RobotContainer {
 
     // Semi-autonomous
     lTrigSemiAuto.whileActiveContinuous(intakeOnOff);
-    //TODO: Need to make aimShootThenIndex stop when released
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
     rBumpSemiAuto.whileActiveOnce(indexOnceFromIntake);
 
@@ -213,9 +207,13 @@ public class RobotContainer {
   }
 
   private Command indexRevolve(double revolutions, String name) {
+    // The wait command is so that the interrupt boolean isn't checked before reset
+    // encoder is run
     return new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index).withInterrupt(() -> index.getOutputRotations() >= revolutions)).withName(name);
+            new StartEndCommand(index::on, index::off, index)
+                .withInterrupt(() -> index.getOutputRotations() >= revolutions))
+        .withName(name);
   }
 
   public Command getAutonomousCommand() {
