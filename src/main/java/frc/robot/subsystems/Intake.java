@@ -30,9 +30,14 @@ public class Intake extends SubsystemBase {
   public void simulationPeriodic() {
   }
 
-  public void on() {
+  public void onIn() {
     intakeMotor.set(1);
   }
+
+  public void onOut() {
+    intakeMotor.set(-1);
+  }
+
 
   public void off() {
     intakeMotor.set(0);

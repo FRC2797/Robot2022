@@ -129,9 +129,11 @@ public class RobotContainer {
   Command indexFromIntake;
   Command indexIntoShooter;
   Command intakeOnOff;
-  Command indexOnOff;
   Command aimShootThenIndex;
   Command drivetrainTest;
+  Command intakeInOnOff;
+  Command intakeOutOnOff;
+  Command indexOnOff;
 
   // Command
   public RobotContainer() {
@@ -139,16 +141,18 @@ public class RobotContainer {
     index.resetEncoder();
     navx.reset();
 
-
-    /* The left y is inverted not because the drive method has negative be forward but because the controller returns a negative value
-    forward for left y */ 
+    /*
+     * The left y is inverted not because the drive method has negative be forward
+     * but because the controller returns a negative value
+     * forward for left y
+     */
     Command teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
               inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-              displayControllerSticks();
+          displayControllerSticks();
         }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
@@ -166,7 +170,8 @@ public class RobotContainer {
 
     indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
 
-    intakeOnOff = new StartEndCommand(intake::on, intake::off, intake).withName("intakeOnOff");
+    intakeInOnOff = new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
+    intakeOutOnOff = new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
     indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
 
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
@@ -192,18 +197,21 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
     });
 
+    // TODO: Add reversing to everything
+    // TODO: Need to test just aiming
     // Semi-autonomous
-    lTrigSemiAuto.whileActiveOnce(intakeOnOff);
+    lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
     rBumpSemiAuto.whileActiveOnce(indexFromIntake);
 
     // Manual
-    lTrigManual.whileActiveOnce(intakeOnOff);
+    lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
+    lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
     rBumpManual.whileActiveOnce(indexOnOff);
 
     // testing
-    backButt.whileActiveContinuous(new Aiming(limelight, drivetrain, shooter));
+    backButt.whenActive(new DriveRotation(180, drivetrain, navx));
 
   }
 
@@ -221,9 +229,10 @@ public class RobotContainer {
   private Command indexRevolve(double revolutions, String name) {
     // The wait command is so that the interrupt boolean isn't checked before reset
     // encoder is run
+    // TODO: add a proportional term to slow it down so that it doesn't overshoot
     return new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
         .andThen(
-            new StartEndCommand(index::on, index::off, index)
+            new StartEndCommand(index::slowOn, index::off, index)
                 .withInterrupt(() -> index.getOutputRotations() >= revolutions))
         .withName(name);
   }
@@ -232,11 +241,11 @@ public class RobotContainer {
 
     // We start with one ball ready to index into shooter
     return new SequentialCommandGroup(
-      new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
-        new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-        new DriveRotation(180, true, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
-        new ParallelCommandGroup(shooterRevLimelightDistance,
-            new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
-                new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));
+        new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
+            new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
+            new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+            new ParallelCommandGroup(shooterRevLimelightDistance,
+                new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
+                    new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));
   }
 }

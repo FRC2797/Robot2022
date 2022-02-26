@@ -24,7 +24,7 @@ public class Index extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("index encoder", getOutputRotations());
+    SmartDashboard.putNumber("index output rotations", getOutputRotations());
   }
 
   @Override
@@ -36,7 +36,7 @@ public class Index extends SubsystemBase {
   }
 
   public void slowOn() {
-    motor.set(0.1);
+    motor.set(-0.1);
   }
 
   public void off() {
@@ -48,7 +48,7 @@ public class Index extends SubsystemBase {
   }
 
   public double getOutputRotations() {
-    return encoder.getPosition(); 
+    return Math.abs(encoder.getPosition()); 
   }
 
 }
