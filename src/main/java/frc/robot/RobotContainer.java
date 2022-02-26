@@ -139,19 +139,16 @@ public class RobotContainer {
 
     // DRIVING
     // TODO: Add deadzone
-    RunCommand teleopDriving = new RunCommand(
+    Command teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
               inputFilter(xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-        }, drivetrain);
+        }, drivetrain).withName("teleopDriving");
 
-    SendableRegistry.setName(teleopDriving, "teleopDriving");
 
-    DrivetrainTest drivetrainTest = new DrivetrainTest(drivetrain);
-    SendableRegistry.setName(drivetrainTest, "drivetrainTest");
-
+    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest"); 
     drivetrain.setDefaultCommand(teleopDriving);
 
     configureButtonBindings();
