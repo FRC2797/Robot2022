@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -148,7 +147,7 @@ public class RobotContainer {
         }, drivetrain).withName("teleopDriving");
 
 
-    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest"); 
+    Command drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
     drivetrain.setDefaultCommand(teleopDriving);
 
     configureButtonBindings();
