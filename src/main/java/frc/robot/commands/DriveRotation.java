@@ -26,7 +26,6 @@ public class DriveRotation extends CommandBase {
         this.drivetrain = drivetrain;
         this.navx = navx;
         this.rotation = rotation;
-        this.isClockwise = isClockwise; 
         this.pidController = new PIDController(kP, 0, 0);
         this.pidController.setSetpoint(rotation);
         this.pidController.setTolerance(2);
