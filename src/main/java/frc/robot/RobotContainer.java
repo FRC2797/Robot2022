@@ -199,7 +199,6 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
     });
 
-    // TODO: Add reversing to everything
     // TODO: Need to test just aiming
     // Semi-autonomous
     lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
