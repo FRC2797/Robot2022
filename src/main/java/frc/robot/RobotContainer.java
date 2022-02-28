@@ -133,7 +133,8 @@ public class RobotContainer {
   Command drivetrainTest;
   Command intakeInOnOff;
   Command intakeOutOnOff;
-  Command indexOnOff;
+  Command indexInOnOff;
+  Command indexOutOnOff;
 
   // Command
   public RobotContainer() {
@@ -172,7 +173,8 @@ public class RobotContainer {
 
     intakeInOnOff = new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
     intakeOutOnOff = new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
-    indexOnOff = new StartEndCommand(index::on, index::off, index).withName("indexOnOff");
+    indexInOnOff = new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
+    indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
 
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
@@ -207,8 +209,10 @@ public class RobotContainer {
     // Manual
     lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
     lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
+    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
+    rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-    rBumpManual.whileActiveOnce(indexOnOff);
+     
 
     // testing
     backButt.whenActive(new DriveRotation(180, drivetrain, navx));

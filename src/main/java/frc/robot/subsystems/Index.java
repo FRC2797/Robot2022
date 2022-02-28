@@ -31,8 +31,12 @@ public class Index extends SubsystemBase {
   public void simulationPeriodic() {
   }
 
-  public void on() {
+  public void onIn() {
     motor.set(Constants.indexPower);
+  }
+
+  public void onOut() {
+    motor.set(-Constants.indexPower);
   }
 
   public void slowOn() {
