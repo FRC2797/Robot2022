@@ -147,7 +147,7 @@ public class RobotContainer {
      * but because the controller returns a negative value
      * forward for left y
      */
-    Command teleopDriving = new RunCommand(
+    teleopDriving = new RunCommand(
         () -> {
           drivetrain.drive(
               inputFilter(-xboxController.getLeftY()),
