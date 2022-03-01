@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Navx;
 
@@ -18,8 +19,8 @@ public class DriveRotation extends CommandBase {
     double rotation;
     double initialRotation;
     boolean isClockwise; 
-    double kP = 0.003; 
     PIDController pidController;
+    double kP = Constants.driveRotationkP; 
 
     // distance should be given in feet
     public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx) {
