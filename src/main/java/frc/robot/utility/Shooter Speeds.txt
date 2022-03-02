@@ -1,0 +1,38 @@
+make a way to adjust at comp
+Make it so that it waits until full rpm at index
+
+Percentage | Average | Blue ball | Red ball
+100%       | 17 ft 2 in, 206 in, average between the two
+95%        | 194 in, 
+84%        |         | 180 in    | 169 in 
+74%        |         | 169 in    | 155 in
+64%        |         | 155 in    | 143 in    
+62%        |         | 118 in    | 
+60%        |         | 132 in    | 
+58%        |         | 132 in    | 106 in
+56%        |         | 143 in    | 
+52%        |         |           | 92 in
+50%        |         | 106 in    | 
+36%        |         | 92 in     | 
+           |  
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
+           | 
