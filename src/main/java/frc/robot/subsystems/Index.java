@@ -39,6 +39,11 @@ public class Index extends SubsystemBase {
     motor.set(-Constants.indexPower);
   }
 
+  //Negative is intake and positive is outtake
+  public void setSpeed(double speed) {
+    motor.set(speed); 
+  }
+
   public void slowOn() {
     motor.set(-0.1);
   }
