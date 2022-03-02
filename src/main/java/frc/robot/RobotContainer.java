@@ -9,11 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -23,6 +22,7 @@ import frc.robot.commands.Aiming;
 import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
+import frc.robot.commands.IndexRevolve;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
@@ -167,9 +167,9 @@ public class RobotContainer {
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
     // TODO: Needs testing
-    indexFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
+    indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
 
-    indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
+    indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
 
     intakeInOnOff = new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
     intakeOutOnOff = new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
@@ -201,9 +201,10 @@ public class RobotContainer {
 
     // TODO: Need to test just aiming
     // Semi-autonomous
+    //TODO: Toggle on intake in semiauto
     lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
-    rBumpSemiAuto.whileActiveOnce(indexFromIntake);
+    rBumpSemiAuto.whenActive(indexFromIntake);
 
     // Manual
     lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
@@ -214,8 +215,7 @@ public class RobotContainer {
      
 
     // testing
-    backButt.whenActive(new DriveRotation(180, drivetrain, navx));
-
+    backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
   }
 
   public double inputFilter(double input) {
@@ -227,17 +227,6 @@ public class RobotContainer {
     SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
     SmartDashboard.putNumber("Right X", xboxController.getRightX());
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
-  }
-
-  private Command indexRevolve(double revolutions, String name) {
-    // The wait command is so that the interrupt boolean isn't checked before reset
-    // encoder is run
-    // TODO: add a proportional term to slow it down so that it doesn't overshoot
-    return new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
-        .andThen(
-            new StartEndCommand(index::slowOn, index::off, index)
-                .withInterrupt(() -> index.getOutputRotations() >= revolutions))
-        .withName(name);
   }
 
   public Command getAutonomousCommand() {
