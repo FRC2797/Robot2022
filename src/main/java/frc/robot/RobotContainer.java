@@ -215,7 +215,9 @@ public class RobotContainer {
      
 
     // testing
+    SmartDashboard.putData(new DriveRotation(180, drivetrain, navx));
     backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
+    
   }
 
   public double inputFilter(double input) {
