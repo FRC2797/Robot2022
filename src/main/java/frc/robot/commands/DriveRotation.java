@@ -21,15 +21,18 @@ public class DriveRotation extends CommandBase {
     boolean isClockwise; 
     PIDController pidController;
     double kP = Constants.driveRotationkP; 
+    double kD = Constants.driveRotationkD;
 
     // distance should be given in feet
     public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx) {
         this.drivetrain = drivetrain;
         this.navx = navx;
         this.rotation = rotation;
-        this.pidController = new PIDController(kP, 0, 0);
+        withName("rotate " + rotation); 
+        this.pidController = new PIDController(kP, 0, kD);
         this.pidController.setSetpoint(rotation);
-        this.pidController.setTolerance(2);
+        
+        this.pidController.setTolerance(0.5);
         addRequirements(drivetrain, navx);
 
     }
