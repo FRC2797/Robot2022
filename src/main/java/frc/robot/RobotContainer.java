@@ -129,7 +129,6 @@ public class RobotContainer {
   Command shooterRevLimelightDistance;
   Command indexFromIntake;
   Command indexIntoShooter;
-  Command intakeOnOff;
   Command aimShootThenIndex;
   Command drivetrainTest;
   Command intakeInOnOff;
@@ -211,16 +210,21 @@ public class RobotContainer {
 
     // TODO: Need to test just aiming
     // Semi-autonomous
-    //TODO: Toggle on intake in semiauto
-    lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
-    rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
-    rBumpSemiAuto.whenActive(indexFromIntake);
+    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(intakeInOnOff);
+    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff, indexOutOnOff));
+    rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
+    rBumpSemiAuto.toggleWhenActive(indexFromIntake);
+
+    dpadUpSemiAuto.whileActiveOnce(climberFrontUp, true);
+    dpadDownSemiAuto.whileActiveOnce(climberFrontDown, true);
+    dpadLeftSemiAuto.whileActiveOnce(climberRearDown, true);
+    dpadRightSemiAuto.whileActiveOnce(climberRearUp, true);
 
     // Manual
     lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
     lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
-    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
+    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
     
     dpadUpManual.whileActiveOnce(climberFrontUp, true);
@@ -247,7 +251,7 @@ public class RobotContainer {
 
     // We start with one ball ready to index into shooter
     return new SequentialCommandGroup(
-        new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
+        new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
             new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
             new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
             new ParallelCommandGroup(shooterRevLimelightDistance,
