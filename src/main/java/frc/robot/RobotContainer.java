@@ -206,7 +206,6 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
     });
 
-    // TODO: Need to test just aiming
     // Semi-autonomous
     lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(intakeInOnOff);
     lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff, indexOutOnOff));
