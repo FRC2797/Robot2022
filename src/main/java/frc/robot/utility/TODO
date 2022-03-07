@@ -1,6 +1,9 @@
 TODO LIST
-- Indexer needs to index a certain amount of revolutions with a proportional term
+- Climber code testing
+- Auto code testing
 - Shooter distance needs to be created
 - Shooter aim needs to be done
+    + driverotation
     + Pipeline
+        + get a grip pipeline actually uploaded to limelight
     + Aim Command
