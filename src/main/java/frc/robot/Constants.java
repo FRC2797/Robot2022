@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import frc.robot.utility.BallData;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -26,7 +28,7 @@ public final class Constants {
         }
 
         public final class Climber {
-            //FIXME: Needs actual constants
+            // FIXME: Needs actual constants
             public static final int RearRight = 16;
             public static final int FrontRight = 17;
             public static final int FrontLeft = 18;
@@ -83,6 +85,15 @@ public final class Constants {
     public static final double shooterSpinUpTime = 0.1;
     public static final double shooterGearRatio = 1;
 
+    
+
+    // 100% and 95% are averages
+    // chance of human error when recording data
+    // distance in inches
+    public static final BallData[] blueBallDatas = { new BallData(100, 206), new BallData(95, 194),
+            new BallData(84, 180), new BallData(74, 169), new BallData(64, 155), new BallData(62, 118),
+            new BallData(60, 132), new BallData(58, 132), new BallData(56, 143), new BallData(50, 106),
+            new BallData(36, 92) };
 
     // Auto Constants
     public static final double forwardTime = 0;
