@@ -77,6 +77,7 @@ public final class Constants {
     public static final double driveDistanceTolerance = 0.1;
     public static final double driveDistancekP = 0.01;
     public static final double driveRotationkP = 0.05;
+    public static final double driveRotationkI = 0.000;
     public static final double driveRotationkD = 0.000;
 
     // Index
