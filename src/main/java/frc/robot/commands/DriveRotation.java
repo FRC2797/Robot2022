@@ -32,7 +32,7 @@ public class DriveRotation extends CommandBase {
         this.pidController = new PIDController(kP, 0, kD);
         this.pidController.setSetpoint(rotation);
         
-        this.pidController.setTolerance(0.5);
+        this.pidController.setTolerance(0);
         addRequirements(drivetrain, navx);
 
     }
@@ -45,7 +45,7 @@ public class DriveRotation extends CommandBase {
     @Override
     public void execute() {
         double driveRotation; 
-        double calculate = pidController.calculate(Math.abs(navx.getRotation()));
+        double calculate = pidController.calculate(navx.getRotation());
         if (calculate >= 0.33) {
             driveRotation = 0.33;
         } else {
