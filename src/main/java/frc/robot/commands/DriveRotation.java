@@ -13,7 +13,6 @@ import frc.robot.subsystems.Navx;
 
 //TODO: Needs testing
 public class DriveRotation extends CommandBase {
-    //TODO: Need to make some values be constants
     Drivetrain drivetrain;
     Navx navx;
     double rotation;
@@ -26,10 +25,10 @@ public class DriveRotation extends CommandBase {
 
     // distance should be given in feet
     public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx) {
+        withName("rotate " + rotation); 
         this.drivetrain = drivetrain;
         this.navx = navx;
         this.rotation = rotation;
-        withName("rotate " + rotation); 
         this.pidController = new PIDController(kP, kI, kD);
         this.pidController.setSetpoint(rotation);
         
@@ -45,17 +44,8 @@ public class DriveRotation extends CommandBase {
 
     @Override
     public void execute() {
-        double driveRotation; 
-        double calculate = pidController.calculate(navx.getRotation());
-        if (calculate >= 0.33) {
-            driveRotation = 0.33;
-        } else {
-            driveRotation = calculate + 0.1;
-        }
-        
-        SmartDashboard.putNumber("Drive rotation for DriveRotation", driveRotation);
-        drivetrain.drive(0, 0, driveRotation);
-
+        SmartDashboard.putNumber("Driverotation navx rotation", navx.getRotation());
+        drivetrain.drive(0, 0, pidController.calculate(navx.getRotation()));
     }
 
     @Override
