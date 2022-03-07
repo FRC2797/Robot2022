@@ -28,11 +28,11 @@ public final class Constants {
         }
 
         public final class Climber {
-            // FIXME: Needs actual constants
-            public static final int RearRight = 16;
-            public static final int FrontRight = 17;
-            public static final int FrontLeft = 18;
-            public static final int RearLeft = 19;
+            //FIXME: Needs actual constants
+            public static final int RearRight = 11;
+            public static final int FrontRight = 10;
+            public static final int FrontLeft = 14;
+            public static final int RearLeft = 12;
         }
 
         public static final int Intake = 5;
@@ -57,6 +57,9 @@ public final class Constants {
     // TODO: Need to get right constant, look at field, might need multiple so that
     // we can start in multiple spots
     public static final double autoDriveDistance = 0;
+
+    // Climber
+    public static final double climberSpeed = 0.5;
 
     // Limelight constants
     // All in inches

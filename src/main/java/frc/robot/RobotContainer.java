@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -23,6 +22,7 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
@@ -37,6 +37,7 @@ public class RobotContainer {
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
+  final private Climber climber = new Climber();
   private boolean isManualBool = true;
 
   final private XboxController xboxController = new XboxController(0);
@@ -135,6 +136,10 @@ public class RobotContainer {
   Command intakeOutOnOff;
   Command indexInOnOff;
   Command indexOutOnOff;
+  Command climberFrontUp;
+  Command climberFrontDown;
+  Command climberRearUp;
+  Command climberRearDown;
 
   // Command
   public RobotContainer() {
@@ -176,6 +181,11 @@ public class RobotContainer {
     indexInOnOff = new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
     indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
 
+    climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
+    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber).withName("climberFrontDown");
+    climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
+    climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
+
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
         new ParallelRaceGroup(shooterRevLimelightDistance,
@@ -212,7 +222,11 @@ public class RobotContainer {
     rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-     
+    
+    dpadUpManual.whileActiveOnce(climberFrontUp, true);
+    dpadDownManual.whileActiveOnce(climberFrontDown, true);
+    dpadLeftManual.whileActiveOnce(climberRearDown, true);
+    dpadRightManual.whileActiveOnce(climberRearUp, true);
 
     // testing
     backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
