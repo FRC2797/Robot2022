@@ -5,9 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -22,6 +24,7 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
+import frc.robot.commands.shooterRevLimelightDistance;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -140,6 +143,8 @@ public class RobotContainer {
   Command climberFrontDown;
   Command climberRearUp;
   Command climberRearDown;
+  Command xboxControllerRumble;
+  Command aimShootThenIndexWithCondition;
 
   // Command
   public RobotContainer() {
@@ -168,8 +173,7 @@ public class RobotContainer {
       return false;
     }, shooter).withName("shooterAnalog");
 
-    shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
-        () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
+    shooterRevLimelightDistance = new shooterRevLimelightDistance(shooter, limelight);
 
     // TODO: Needs testing
     indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
@@ -182,15 +186,27 @@ public class RobotContainer {
     indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
 
     climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
-    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber).withName("climberFrontDown");
+    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber)
+        .withName("climberFrontDown");
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
-    aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
-        drivetrain, shooter),
+    aimShootThenIndex = new SequentialCommandGroup(new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx),
         new ParallelRaceGroup(shooterRevLimelightDistance,
             new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
                 .withName("aimShootThenIndex");
+    xboxControllerRumble = new StartEndCommand(() -> xboxController.setRumble(RumbleType.kLeftRumble, 0.2),
+        () -> xboxController.setRumble(RumbleType.kLeftRumble, 0)).withTimeout(0.1).withName("xboxControllerRumble");
+        
+    aimShootThenIndexWithCondition = new ConditionalCommand(aimShootThenIndex, xboxControllerRumble,
+        () -> limelight.getHorizontalOffset() != -99).withName("aimShootThenIndexWithCondition");
+
+    // new ConditionalCommand(new Aiming(limelight,
+    // drivetrain, shooter),
+    // new ParallelRaceGroup(shooterRevLimelightDistance,
+    // new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
+    // , xboxControllerRumble), limelight.getHorizontalOffset() !=
+    // -99).withName("aimShootThenIndex");
 
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
@@ -211,7 +227,7 @@ public class RobotContainer {
 
     // TODO: Need to test just aiming
     // Semi-autonomous
-    //TODO: Toggle on intake in semiauto
+    // TODO: Toggle on intake in semiauto
     lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
     rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
     rBumpSemiAuto.whenActive(indexFromIntake);
@@ -222,7 +238,7 @@ public class RobotContainer {
     rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-    
+
     dpadUpManual.whileActiveOnce(climberFrontUp, true);
     dpadDownManual.whileActiveOnce(climberFrontDown, true);
     dpadLeftManual.whileActiveOnce(climberRearDown, true);
@@ -231,7 +247,7 @@ public class RobotContainer {
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx));
     backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
-    
+
   }
 
   public double inputFilter(double input) {

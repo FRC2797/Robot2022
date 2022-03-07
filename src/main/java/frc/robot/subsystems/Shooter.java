@@ -40,10 +40,6 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Sim Shooter Values", flyWheelMotors.get()); 
   }
 
-  public void setSpeedDistance(double distance) {
-    flyWheelMotors.set(0);
-  }
-
  public void setSpeed(double speed) {
     flyWheelMotors.set(speed);
   } 
