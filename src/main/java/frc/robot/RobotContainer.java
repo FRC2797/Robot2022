@@ -157,7 +157,6 @@ public class RobotContainer {
               inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-          displayControllerSticks();
         }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
@@ -197,7 +196,6 @@ public class RobotContainer {
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
 
