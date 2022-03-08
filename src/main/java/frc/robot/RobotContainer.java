@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Aiming;
 import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
@@ -267,7 +266,7 @@ public class RobotContainer {
     // We start with one ball ready to index into shooter
     return new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
         new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-        new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+        new DriveRotation(180, drivetrain, navx), new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx),
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
                 waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
