@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Aiming;
@@ -22,6 +21,7 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
+import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -139,6 +139,7 @@ public class RobotContainer {
   Command climberFrontDown;
   Command climberRearUp;
   Command climberRearDown;
+  Command waitUntilPeakShooterRPM;
 
   // Command
   public RobotContainer() {
@@ -169,7 +170,8 @@ public class RobotContainer {
     shooterRevLimelightDistance = new StartEndCommand(() -> shooter.setSpeedDistance(limelight.getDistance()),
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
-    // TODO: Needs testing
+    waitUntilPeakShooterRPM = new WaitUntilPeakShooterRPM(shooter);
+
     indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
 
     indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
@@ -180,14 +182,15 @@ public class RobotContainer {
     indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
 
     climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
-    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber).withName("climberFrontDown");
+    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber)
+        .withName("climberFrontDown");
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
         new ParallelRaceGroup(shooterRevLimelightDistance,
-            new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
+            waitUntilPeakShooterRPM.andThen(indexIntoShooter)))
                 .withName("aimShootThenIndex");
 
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
@@ -223,7 +226,7 @@ public class RobotContainer {
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
     rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-    
+
     dpadUpManual.whileActiveOnce(climberFrontUp, true);
     dpadDownManual.whileActiveOnce(climberFrontDown, true);
     dpadLeftManual.whileActiveOnce(climberRearDown, true);
@@ -247,12 +250,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
-    return new SequentialCommandGroup(
-        new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
-            new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-            new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
-            new ParallelCommandGroup(shooterRevLimelightDistance,
-                new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
-                    new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));
+    return new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
+        new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
+        new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+        new ParallelCommandGroup(shooterRevLimelightDistance,
+            new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
+                waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
   }
 }
