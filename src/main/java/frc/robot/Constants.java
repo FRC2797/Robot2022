@@ -95,6 +95,8 @@ public final class Constants {
             new BallData(60, 132), new BallData(58, 132), new BallData(56, 143), new BallData(50, 106),
             new BallData(36, 92) };
 
+    public static final double shooterSlopeConstant = 2.2; 
+
     // Auto Constants
     public static final double forwardTime = 0;
     public static final double rotateTime = 0;
