@@ -24,7 +24,7 @@ public class Aiming extends CommandBase {
     public Aiming(Limelight limelight, Drivetrain drivetrain, Shooter shooter) {
         this.drivetrain = drivetrain;
         this.limelight = limelight;
-        addRequirements(limelight, drivetrain);
+        addRequirements(limelight, drivetrain, shooter);
         pidController = new PIDController(0, 0, 0);
     }
 

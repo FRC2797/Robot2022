@@ -19,7 +19,7 @@ public class DriveDistance extends CommandBase {
         this.drivetrain = drivetrain; 
         this.navx = navx; 
         this.distance = distance;
-        addRequirements(drivetrain, navx);
+        addRequirements(drivetrain, navx, navx);
     }
 
     @Override
