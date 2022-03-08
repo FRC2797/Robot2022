@@ -27,5 +27,10 @@ public class shooterRevLimelightDistance extends CommandBase {
 
     public double percFromDist(double distanceInInches) {
        return distanceInInches * Constants.shooterSlopeConstant;
-    }  
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        shooter.setSpeed(0);
+    }
 }
