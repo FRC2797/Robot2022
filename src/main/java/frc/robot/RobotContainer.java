@@ -133,10 +133,17 @@ public class RobotContainer {
   Command indexIntoShooter;
   Command aimShootThenIndex;
   Command drivetrainTest;
-  Command intakeInOnOff;
-  Command intakeOutOnOff;
-  Command indexInOnOff;
-  Command indexOutOnOff;
+
+  Command autoIntakeInOnOff;
+  Command autoIntakeOutOnOff;
+  Command autoIndexInOnOff;
+  Command autoIndexOutOnOff;
+
+  Command controllerIntakeInOnOff;
+  Command controllerIntakeOutOnOff;
+  Command controllerIndexInOnOff;
+  Command controllerIndexOutOnOff;
+  
   Command climberFrontUp;
   Command climberFrontDown;
   Command climberRearUp;
@@ -179,10 +186,15 @@ public class RobotContainer {
 
     indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
 
-    intakeInOnOff = new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
-    intakeOutOnOff = new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
-    indexInOnOff = new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
-    indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
+    autoIntakeInOnOff = intakeInOnOff();
+    autoIntakeOutOnOff = intakeOutOnOff();
+    autoIndexInOnOff = indexInOnOff();
+    autoIndexOutOnOff = indexOutOnOff();
+
+    controllerIntakeInOnOff = intakeInOnOff();
+    controllerIntakeOutOnOff = intakeOutOnOff();
+    controllerIndexInOnOff = indexInOnOff();
+    controllerIndexOutOnOff = indexOutOnOff();
 
     climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
     climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber)
@@ -217,8 +229,8 @@ public class RobotContainer {
     });
 
     // Semi-autonomous
-    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(intakeInOnOff);
-    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff, indexOutOnOff));
+    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(controllerIntakeInOnOff);
+    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
     rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
     rBumpSemiAuto.toggleWhenActive(indexFromIntake);
 
@@ -228,10 +240,10 @@ public class RobotContainer {
     dpadRightSemiAuto.whileActiveOnce(climberRearUp, true);
 
     // Manual
-    lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
-    lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
-    rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
-    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
+    lTrigManual.and(bButtManual.negate()).whileActiveOnce(controllerIntakeInOnOff);
+    lTrigManual.and(bButtManual).whileActiveOnce(controllerIntakeOutOnOff);
+    rBumpManual.and(bButtManual.negate()).whileActiveOnce(controllerIndexInOnOff);
+    rBumpManual.and(bButtManual).whileActiveOnce(controllerIndexOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
 
     dpadUpManual.whileActiveOnce(climberFrontUp, true);
@@ -255,13 +267,28 @@ public class RobotContainer {
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
   }
 
- 
+  // added to a separate method so it can be reused in multiple places
+  public Command intakeInOnOff() {
+    return new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
+  }
+
+  public Command intakeOutOnOff() {
+    return new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
+  }
+
+  public Command indexInOnOff() {
+    return new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
+  } 
+
+  public Command indexOutOnOff() {
+    return new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
+  } 
 
 
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
-    return new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
+    return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
         new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
         new DriveRotation(180, drivetrain, navx, xboxController), new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelCommandGroup(shooterRevLimelightDistance,
