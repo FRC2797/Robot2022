@@ -23,7 +23,7 @@ public class Climber extends SubsystemBase {
     final private MotorControllerGroup rearGroup = new MotorControllerGroup(rearLeft, rearRight);
 
     public Climber() {
-
+        brake();
     }
 
     public void setFrontUp() {
