@@ -11,9 +11,3 @@ TODO LIST
 - Controller mappings on a diagram
 - Driverotation tuning
 - Create slow mode
-
-
-- Problems
-    + Shooter inversed
-    + Crashing on intake and intakereverse (Bumper/r trigger and b button)
-        + Its because the scheduled command is part of a command group
