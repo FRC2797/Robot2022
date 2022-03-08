@@ -28,7 +28,6 @@ public final class Constants {
         }
 
         public final class Climber {
-            //FIXME: Needs actual constants
             public static final int RearRight = 11;
             public static final int FrontRight = 10;
             public static final int FrontLeft = 14;
@@ -100,6 +99,8 @@ public final class Constants {
             new BallData(84, 180), new BallData(74, 169), new BallData(64, 155), new BallData(62, 118),
             new BallData(60, 132), new BallData(58, 132), new BallData(56, 143), new BallData(50, 106),
             new BallData(36, 92) };
+
+    public static final double shooterSlopeConstant = 2.2; 
 
     // Auto Constants
     public static final double forwardTime = 0;

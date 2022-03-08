@@ -1,9 +1,9 @@
 TODO LIST
-- Climber code testing
-- Auto code testing
-- Shooter distance needs to be created
-- Shooter aim needs to be done
-    + driverotation
-    + Pipeline
-        + get a grip pipeline actually uploaded to limelight
-    + Aim Command
+- Testing
+    + Climber code
+    + Auto code
+    + Aim shoot then index after drive rotation is tuned
+
+- Controller mappings on a diagram
+- Driverotation tuning
+- Interpolating power between points for get shooter power method

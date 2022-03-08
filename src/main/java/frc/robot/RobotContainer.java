@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Aiming;
@@ -25,6 +24,7 @@ import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
 import frc.robot.commands.shooterRevLimelightDistance;
+import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -132,7 +132,6 @@ public class RobotContainer {
   Command shooterRevLimelightDistance;
   Command indexFromIntake;
   Command indexIntoShooter;
-  Command intakeOnOff;
   Command aimShootThenIndex;
   Command drivetrainTest;
   Command intakeInOnOff;
@@ -145,6 +144,7 @@ public class RobotContainer {
   Command climberRearDown;
   Command xboxControllerRumble;
   Command aimShootThenIndexWithCondition;
+  Command waitUntilPeakShooterRPM;
 
   // Command
   public RobotContainer() {
@@ -163,7 +163,6 @@ public class RobotContainer {
               inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-          displayControllerSticks();
         }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
@@ -175,7 +174,8 @@ public class RobotContainer {
 
     shooterRevLimelightDistance = new shooterRevLimelightDistance(shooter, limelight);
 
-    // TODO: Needs testing
+    waitUntilPeakShooterRPM = new WaitUntilPeakShooterRPM(shooter);
+
     indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
 
     indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
@@ -193,7 +193,7 @@ public class RobotContainer {
 
     aimShootThenIndex = new SequentialCommandGroup(new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx),
         new ParallelRaceGroup(shooterRevLimelightDistance,
-            new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
+            waitUntilPeakShooterRPM.andThen(indexIntoShooter)))
                 .withName("aimShootThenIndex");
     xboxControllerRumble = new StartEndCommand(() -> xboxController.setRumble(RumbleType.kLeftRumble, 0.2),
         () -> xboxController.setRumble(RumbleType.kLeftRumble, 0)).withTimeout(0.1).withName("xboxControllerRumble");
@@ -214,7 +214,6 @@ public class RobotContainer {
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
 
@@ -225,18 +224,22 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
     });
 
-    // TODO: Need to test just aiming
     // Semi-autonomous
-    // TODO: Toggle on intake in semiauto
-    lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
-    rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
-    rBumpSemiAuto.whenActive(indexFromIntake);
+    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(intakeInOnOff);
+    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff, indexOutOnOff));
+    rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
+    rBumpSemiAuto.toggleWhenActive(indexFromIntake);
+
+    dpadUpSemiAuto.whileActiveOnce(climberFrontUp, true);
+    dpadDownSemiAuto.whileActiveOnce(climberFrontDown, true);
+    dpadLeftSemiAuto.whileActiveOnce(climberRearDown, true);
+    dpadRightSemiAuto.whileActiveOnce(climberRearUp, true);
 
     // Manual
     lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
     lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
-    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
+    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
 
     dpadUpManual.whileActiveOnce(climberFrontUp, true);
@@ -245,9 +248,7 @@ public class RobotContainer {
     dpadRightManual.whileActiveOnce(climberRearUp, true);
 
     // testing
-    SmartDashboard.putData(new DriveRotation(180, drivetrain, navx));
     backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
-
   }
 
   public double inputFilter(double input) {
@@ -264,12 +265,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
-    return new SequentialCommandGroup(
-        new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
-            new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-            new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
-            new ParallelCommandGroup(shooterRevLimelightDistance,
-                new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
-                    new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));
+    return new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
+        new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
+        new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+        new ParallelCommandGroup(shooterRevLimelightDistance,
+            new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
+                waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
   }
 }

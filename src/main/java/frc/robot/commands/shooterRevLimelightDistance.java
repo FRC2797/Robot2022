@@ -20,30 +20,17 @@ public class shooterRevLimelightDistance extends CommandBase {
 
     @Override
     public void initialize() {
-        shooter.setSpeed(percFromDistBlue(limelight.getDistance()));
+        shooter.setSpeed(percFromDist(limelight.getDistance()));
     }
 
     //public void end;
 
-    public double percFromDistBlue(double distance) {
-        blueBallDatas = Constants.blueBallDatas;
-        int closestIndex = 0;
-        BallData closestBall = null; 
+    public double percFromDist(double distanceInInches) {
+       return distanceInInches * Constants.shooterSlopeConstant;
+    }
 
-        for (int i = 0; i < blueBallDatas.length; i--) {
-            closestBall = blueBallDatas[0];
-            BallData currentBall = blueBallDatas[i];  
-            //find the closest ball
-            if (Math.abs(closestBall.distance - distance) > Math.abs(currentBall.distance - distance)) {
-                closestBall  = currentBall;
-                closestIndex = i;
-            }
-        }
-
-        return closestBall.percentage; 
-    }  
-
-    public double percFromDistRed(double distance) {
-        return 0;
+    @Override
+    public void end(boolean interrupted) {
+        shooter.setSpeed(0);
     }
 }

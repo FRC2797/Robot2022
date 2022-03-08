@@ -6,12 +6,12 @@ import static frc.robot.Constants.Motors.Climber.RearLeft;
 import static frc.robot.Constants.Motors.Climber.RearRight;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants; 
-
+import frc.robot.Constants;
 
 public class Climber extends SubsystemBase {
     final private CANSparkMax frontLeft = new CANSparkMax(FrontLeft, MotorType.kBrushless);
@@ -22,12 +22,10 @@ public class Climber extends SubsystemBase {
     final private MotorControllerGroup frontGroup = new MotorControllerGroup(frontLeft, frontRight);
     final private MotorControllerGroup rearGroup = new MotorControllerGroup(rearLeft, rearRight);
 
-
     public Climber() {
-
+        brake();
     }
 
-    
     public void setFrontUp() {
         frontGroup.set(Constants.climberSpeed);
     }
@@ -52,9 +50,12 @@ public class Climber extends SubsystemBase {
         rearGroup.set(0);
     }
 
-
-
-
+    public void brake() {
+        frontLeft.setIdleMode(IdleMode.kBrake);
+        rearLeft.setIdleMode(IdleMode.kBrake);
+        frontRight.setIdleMode(IdleMode.kBrake);
+        rearRight.setIdleMode(IdleMode.kBrake);
+    }
 
     @Override
     public void periodic() {
