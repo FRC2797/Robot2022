@@ -215,8 +215,8 @@ public class RobotContainer {
      
 
     // testing
-    SmartDashboard.putData(new DriveRotation(180, drivetrain, navx));
-    backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
+    SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
+    // backbutt.
     
   }
 
@@ -237,7 +237,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
             new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-            new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
+            new DriveRotation(180, drivetrain, navx, xboxController), new Aiming(limelight, drivetrain, shooter),
             new ParallelCommandGroup(shooterRevLimelightDistance,
                 new SequentialCommandGroup(new WaitCommand(Constants.shooterSpinUpTime), indexIntoShooter,
                     new WaitCommand(Constants.shooterSpinUpTime / 3), indexFromIntake, indexIntoShooter)))));

@@ -57,4 +57,8 @@ public class Navx extends SubsystemBase {
         ahrs.resetDisplacement();
         ahrs.calibrate();
     }
+
+    public boolean isConnected() {
+        return ahrs.isConnected();
+    }
 }
