@@ -28,11 +28,10 @@ public final class Constants {
         }
 
         public final class Climber {
-            // FIXME: Needs actual constants
-            public static final int RearRight = 16;
-            public static final int FrontRight = 17;
-            public static final int FrontLeft = 18;
-            public static final int RearLeft = 19;
+            public static final int RearRight = 11;
+            public static final int FrontRight = 10;
+            public static final int FrontLeft = 14;
+            public static final int RearLeft = 12;
         }
 
         public static final int Intake = 5;
@@ -58,6 +57,9 @@ public final class Constants {
     // we can start in multiple spots
     public static final double autoDriveDistance = 0;
 
+    // Climber
+    public static final double climberSpeed = 0.5;
+
     // Limelight constants
     // All in inches
     public static final double hubHeight = 90;
@@ -78,8 +80,9 @@ public final class Constants {
     // Index
     public static final double indexWaitTime = 0.5;
     public static final double indexPower = -0.6;
-    public static final double indexFromIntakeRevolutions = 2.25;
-    public static final double indexIntoShooterRevolutions = 0.33;
+    public static final double indexFromIntakeRevolutions = -2.25;
+    public static final double indexIntoShooterRevolutions = -0.33;
+    public static final double indexKp = 0.3;
 
     // Shooter
     public static final double shooterSpinUpTime = 0.1;

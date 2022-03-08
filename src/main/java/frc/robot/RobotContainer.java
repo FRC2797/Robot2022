@@ -9,11 +9,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -23,6 +21,8 @@ import frc.robot.commands.Aiming;
 import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
+import frc.robot.commands.IndexRevolve;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
@@ -37,6 +37,7 @@ public class RobotContainer {
   final private Limelight limelight = new Limelight();
   final private Index index = new Index();
   final private Navx navx = new Navx();
+  final private Climber climber = new Climber();
   private boolean isManualBool = true;
 
   final private XboxController xboxController = new XboxController(0);
@@ -128,13 +129,16 @@ public class RobotContainer {
   Command shooterRevLimelightDistance;
   Command indexFromIntake;
   Command indexIntoShooter;
-  Command intakeOnOff;
   Command aimShootThenIndex;
   Command drivetrainTest;
   Command intakeInOnOff;
   Command intakeOutOnOff;
   Command indexInOnOff;
   Command indexOutOnOff;
+  Command climberFrontUp;
+  Command climberFrontDown;
+  Command climberRearUp;
+  Command climberRearDown;
 
   // Command
   public RobotContainer() {
@@ -153,7 +157,6 @@ public class RobotContainer {
               inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-          displayControllerSticks();
         }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
@@ -167,14 +170,19 @@ public class RobotContainer {
         () -> shooter.setSpeed(0), shooter, limelight).withName("shooterRevLimelightDistance");
 
     // TODO: Needs testing
-    indexFromIntake = indexRevolve(Constants.indexFromIntakeRevolutions, "indexOnceFromIntake");
+    indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
 
-    indexIntoShooter = indexRevolve(Constants.indexIntoShooterRevolutions, "indexIntoShooter");
+    indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
 
     intakeInOnOff = new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
     intakeOutOnOff = new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
     indexInOnOff = new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
     indexOutOnOff = new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
+
+    climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
+    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber).withName("climberFrontDown");
+    climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
+    climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
     aimShootThenIndex = new SequentialCommandGroup(new Aiming(limelight,
         drivetrain, shooter),
@@ -188,7 +196,6 @@ public class RobotContainer {
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putNumber("vertical", limelight.getVerticalOffset());
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
 
@@ -199,23 +206,31 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
     });
 
-    // TODO: Need to test just aiming
     // Semi-autonomous
-    lTrigSemiAuto.whileActiveOnce(intakeInOnOff);
-    rTrigSemiAuto.whileActiveOnce(aimShootThenIndex);
-    rBumpSemiAuto.whileActiveOnce(indexFromIntake);
+    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(intakeInOnOff);
+    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff, indexOutOnOff));
+    rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
+    rBumpSemiAuto.toggleWhenActive(indexFromIntake);
+
+    dpadUpSemiAuto.whileActiveOnce(climberFrontUp, true);
+    dpadDownSemiAuto.whileActiveOnce(climberFrontDown, true);
+    dpadLeftSemiAuto.whileActiveOnce(climberRearDown, true);
+    dpadRightSemiAuto.whileActiveOnce(climberRearUp, true);
 
     // Manual
     lTrigManual.and(bButtManual.negate()).whileActiveOnce(intakeInOnOff);
     lTrigManual.and(bButtManual).whileActiveOnce(intakeOutOnOff);
-    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rBumpManual.and(bButtManual.negate()).whileActiveOnce(indexInOnOff);
+    rBumpManual.and(bButtManual).whileActiveOnce(indexOutOnOff);
     rTrigManual.whileActiveContinuous(shooterAnalog);
-     
+    
+    dpadUpManual.whileActiveOnce(climberFrontUp, true);
+    dpadDownManual.whileActiveOnce(climberFrontDown, true);
+    dpadLeftManual.whileActiveOnce(climberRearDown, true);
+    dpadRightManual.whileActiveOnce(climberRearUp, true);
 
     // testing
-    backButt.whenActive(new DriveRotation(180, drivetrain, navx));
-
+    backButt.toggleWhenPressed(new IndexRevolve(1, index).beforeStarting(index::resetEncoder));
   }
 
   public double inputFilter(double input) {
@@ -229,22 +244,11 @@ public class RobotContainer {
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
   }
 
-  private Command indexRevolve(double revolutions, String name) {
-    // The wait command is so that the interrupt boolean isn't checked before reset
-    // encoder is run
-    // TODO: add a proportional term to slow it down so that it doesn't overshoot
-    return new InstantCommand(() -> index.resetEncoder(), index).andThen(new WaitCommand(0))
-        .andThen(
-            new StartEndCommand(index::slowOn, index::off, index)
-                .withInterrupt(() -> index.getOutputRotations() >= revolutions))
-        .withName(name);
-  }
-
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
     return new SequentialCommandGroup(
-        new ParallelCommandGroup(intakeOnOff, new SequentialCommandGroup(
+        new ParallelCommandGroup(intakeInOnOff, new SequentialCommandGroup(
             new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
             new DriveRotation(180, drivetrain, navx), new Aiming(limelight, drivetrain, shooter),
             new ParallelCommandGroup(shooterRevLimelightDistance,
