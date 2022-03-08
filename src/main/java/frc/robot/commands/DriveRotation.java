@@ -41,7 +41,7 @@ public class DriveRotation extends CommandBase {
         this.pidController.setSetpoint(rotation);
         withName("rotate " + rotation); 
         
-        this.pidController.setTolerance(0);
+        this.pidController.setTolerance(2);
         addRequirements(drivetrain, navx);
 
     }

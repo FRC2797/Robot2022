@@ -200,13 +200,6 @@ public class RobotContainer {
     aimShootThenIndexWithCondition = new ConditionalCommand(aimShootThenIndex, xboxControllerRumble,
         () -> limelight.getHorizontalOffset() != -99).withName("aimShootThenIndexWithCondition");
 
-    // new ConditionalCommand(new Aiming(limelight,
-    // drivetrain, shooter),
-    // new ParallelRaceGroup(shooterRevLimelightDistance,
-    // new WaitCommand(Constants.shooterSpinUpTime).andThen(indexIntoShooter)))
-    // , xboxControllerRumble), limelight.getHorizontalOffset() !=
-    // -99).withName("aimShootThenIndex");
-
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
     limelight.setDefaultCommand(
@@ -248,7 +241,6 @@ public class RobotContainer {
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
-    // backbutt.
     
   }
 
@@ -262,6 +254,9 @@ public class RobotContainer {
     SmartDashboard.putNumber("Right X", xboxController.getRightX());
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
   }
+
+ 
+
 
   public Command getAutonomousCommand() {
 
