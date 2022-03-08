@@ -78,6 +78,9 @@ public class RobotContainer {
   // Back buttons is used for testing commands
   final private JoystickButton backButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
 
+  final private JoystickButton leftStickDown = new JoystickButton(xboxController,
+      XboxController.Button.kLeftStick.value);
+
   final private Trigger dpadUp = new Trigger() {
     public boolean get() {
       return xboxController.getPOV() == 0 ? true : false;
@@ -126,31 +129,33 @@ public class RobotContainer {
   final private Trigger lTrigManual = lTrig.and(isManual);
   final private Trigger lTrigSemiAuto = lTrig.and(isManual.negate());
 
-  Command teleopDriving;
-  Command shooterAnalog;
-  Command shooterRevLimelightDistance;
-  Command indexFromIntake;
-  Command indexIntoShooter;
-  Command aimShootThenIndex;
-  Command drivetrainTest;
+  final Command teleopDrivingFullSpeed;
+  final Command teleopDrivingHalfSpeed;
+  final Command conditionalDrivetrainDefaultCommand;
+  final Command shooterAnalog;
+  final Command shooterRevLimelightDistance;
+  final Command indexFromIntake;
+  final Command indexIntoShooter;
+  final Command aimShootThenIndex;
+  final Command drivetrainTest;
 
-  Command autoIntakeInOnOff;
-  Command autoIntakeOutOnOff;
-  Command autoIndexInOnOff;
-  Command autoIndexOutOnOff;
+  final Command autoIntakeInOnOff;
+  final Command autoIntakeOutOnOff;
+  final Command autoIndexInOnOff;
+  final Command autoIndexOutOnOff;
 
-  Command controllerIntakeInOnOff;
-  Command controllerIntakeOutOnOff;
-  Command controllerIndexInOnOff;
-  Command controllerIndexOutOnOff;
-  
-  Command climberFrontUp;
-  Command climberFrontDown;
-  Command climberRearUp;
-  Command climberRearDown;
-  Command xboxControllerRumble;
-  Command aimShootThenIndexWithCondition;
-  Command waitUntilPeakShooterRPM;
+  final Command controllerIntakeInOnOff;
+  final Command controllerIntakeOutOnOff;
+  final Command controllerIndexInOnOff;
+  final Command controllerIndexOutOnOff;
+
+  final Command climberFrontUp;
+  final Command climberFrontDown;
+  final Command climberRearUp;
+  final Command climberRearDown;
+  final Command xboxControllerRumble;
+  final Command aimShootThenIndexWithCondition;
+  final Command waitUntilPeakShooterRPM;
 
   // Command
   public RobotContainer() {
@@ -163,13 +168,27 @@ public class RobotContainer {
      * but because the controller returns a negative value
      * forward for left y
      */
-    teleopDriving = new RunCommand(
+
+    drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
+
+    teleopDrivingFullSpeed = new RunCommand(
         () -> {
           drivetrain.drive(
               inputFilter(-xboxController.getLeftY()),
               inputFilter(xboxController.getLeftX()),
               inputFilter(xboxController.getRightX()));
-        }, drivetrain).withName("teleopDriving");
+        }, drivetrain).withName("teleopDrivingFullSpeed");
+
+    teleopDrivingHalfSpeed = new RunCommand(
+        () -> {
+          drivetrain.drive(
+              inputFilter(-xboxController.getLeftY() / 2),
+              inputFilter(xboxController.getLeftX() / 2),
+              inputFilter(xboxController.getRightX() / 2));
+        }, drivetrain).withName("teleopDrivingHalfSpeed");
+
+    conditionalDrivetrainDefaultCommand = new ConditionalCommand(teleopDrivingFullSpeed, teleopDrivingHalfSpeed,
+        () -> !leftStickDown.get());
 
     shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
@@ -202,17 +221,16 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
-    aimShootThenIndex = new SequentialCommandGroup(new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
+    aimShootThenIndex = new SequentialCommandGroup(
+        new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelRaceGroup(shooterRevLimelightDistance,
             waitUntilPeakShooterRPM.andThen(indexIntoShooter)))
                 .withName("aimShootThenIndex");
     xboxControllerRumble = new StartEndCommand(() -> xboxController.setRumble(RumbleType.kLeftRumble, 0.2),
         () -> xboxController.setRumble(RumbleType.kLeftRumble, 0)).withTimeout(0.1).withName("xboxControllerRumble");
-        
+
     aimShootThenIndexWithCondition = new ConditionalCommand(aimShootThenIndex, xboxControllerRumble,
         () -> limelight.getHorizontalOffset() != -99).withName("aimShootThenIndexWithCondition");
-
-    drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
     limelight.setDefaultCommand(
         new RunCommand(() -> {
@@ -221,7 +239,7 @@ public class RobotContainer {
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
 
-    drivetrain.setDefaultCommand(teleopDriving);
+    drivetrain.setDefaultCommand(conditionalDrivetrainDefaultCommand);
 
     startButt.whenPressed(() -> {
       isManualBool = isManualBool ? false : true;
@@ -230,7 +248,8 @@ public class RobotContainer {
 
     // Semi-autonomous
     lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(controllerIntakeInOnOff);
-    lTrigSemiAuto.and(bButtSemiAuto).whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
+    lTrigSemiAuto.and(bButtSemiAuto)
+        .whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
     rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
     rBumpSemiAuto.toggleWhenActive(indexFromIntake);
 
@@ -253,7 +272,7 @@ public class RobotContainer {
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
-    
+
   }
 
   public double inputFilter(double input) {
@@ -278,19 +297,19 @@ public class RobotContainer {
 
   public Command indexInOnOff() {
     return new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
-  } 
+  }
 
   public Command indexOutOnOff() {
     return new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
-  } 
-
+  }
 
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
     return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
         new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
-        new DriveRotation(180, drivetrain, navx, xboxController), new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
+        new DriveRotation(180, drivetrain, navx, xboxController),
+        new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
                 waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
