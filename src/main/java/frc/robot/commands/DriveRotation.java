@@ -39,7 +39,8 @@ public class DriveRotation extends CommandBase {
         this.xboxController = xboxController;
         this.pidController = new PIDController(kP, kI, kD);
         this.pidController.setSetpoint(rotation);
-
+        withName("rotate " + rotation); 
+        
         this.pidController.setTolerance(0);
         addRequirements(drivetrain, navx);
 

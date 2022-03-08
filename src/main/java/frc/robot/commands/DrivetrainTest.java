@@ -14,7 +14,7 @@ public class DrivetrainTest extends CommandBase {
 
     public DrivetrainTest(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        addRequirements(this.drivetrain);
+        addRequirements(drivetrain);
     }
 
     @Override
