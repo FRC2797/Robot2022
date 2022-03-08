@@ -27,6 +27,8 @@ public class shooterRevLimelightDistance extends CommandBase {
 
     public double percFromDistBlue(double distance) {
         blueBallDatas = Constants.blueBallDatas;
+        BallData lowerBall;
+        BallData higherBall;
         int closestIndex = 0;
         BallData closestBall = null; 
 
@@ -39,6 +41,13 @@ public class shooterRevLimelightDistance extends CommandBase {
                 closestIndex = i;
             }
         }
+
+        if () {
+
+        }
+
+        // BallData lowerBall = ;
+        // BallData higherBall = ;
 
         return closestBall.percentage; 
     }  
