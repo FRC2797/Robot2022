@@ -190,7 +190,7 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
-    aimShootThenIndex = new SequentialCommandGroup(new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx),
+    aimShootThenIndex = new SequentialCommandGroup(new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelRaceGroup(shooterRevLimelightDistance,
             waitUntilPeakShooterRPM.andThen(indexIntoShooter)))
                 .withName("aimShootThenIndex");
