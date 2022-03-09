@@ -206,14 +206,6 @@ public class RobotContainer {
 
     //Command Initilizations
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
-    
-    teleopDriving = new RunCommand(() -> {
-      if (!isClimber.get()) {
-        teleopDrivingFullSpeed();
-      } else {
-        teleopDrivingClimber();
-      }
-    }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
@@ -262,7 +254,7 @@ public class RobotContainer {
     //
 
     //
-    drivetrain.setDefaultCommand(teleopDriving);
+
     //
 
     // Scheme switching
@@ -319,6 +311,17 @@ public class RobotContainer {
     lTrig.and(isClimber).whileActiveOnce(climberFrontLeftDown);
     rBump.and(isClimber).whileActiveOnce(climberFrontRightUp);
     rTrig.and(isClimber).whileActiveOnce(climberFrontRightDown);
+
+    // Driving
+    teleopDriving = new RunCommand(() -> {
+      if (!isClimber.get()) {
+        teleopDrivingFullSpeed();
+      } else {
+        teleopDrivingClimber();
+      }
+    }, drivetrain).withName("teleopDriving");
+
+    drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
