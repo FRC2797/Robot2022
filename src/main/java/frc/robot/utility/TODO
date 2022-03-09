@@ -1,10 +1,6 @@
 TODO LIST
 
-Need to code:
-    Different sets of autocode with different choosers
-    Shuffleboard layout
-
-Set up tests for
+test for
     - Camera
     - Driverotation
     - Autocode
@@ -12,19 +8,24 @@ Set up tests for
         - Drivedistance
         - Driverotation(limelight.getHorizontalOffset())
         - WaitUntilPeakShooterRPM
+        - AimRevDistance
+        - Sendable Chooser
     - Climber code
+        - Climber switch scheme with individual climbers
+        - Slow move
     - Shuffleboard
     - Basic controls
         - Intake backwards and forwards each mode
-        - Index backwards and forwards each mode 
+        - Index backwards and forwards each mode
+        - Shooter analog
     - WaitUntilPeakShooterRPM
     - IndexRevolve
+    - actually shooting balls
 
 tuning
     Driverotation (kP and minimum)
     Drivedistance (kP and minimum)
     WaitUntilPeakShooterRPM (Percentage and wait time)
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
-
-Find what is crashing and fix them
+    limelight (angle (getting it and deciding it))
 
