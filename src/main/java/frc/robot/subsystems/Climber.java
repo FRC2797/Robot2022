@@ -26,6 +26,58 @@ public class Climber extends SubsystemBase {
         brake();
     }
 
+
+    public void setFrontLeftUp() {
+        frontLeft.set(Constants.climberSpeed);
+    }
+
+    public void setFrontLeftDown() {
+        frontLeft.set(-Constants.climberSpeed);
+    }
+
+    public void frontLeftOff() {
+        frontLeft.set(0);
+    }
+
+    public void setFrontRightUp() {
+        frontRight.set(Constants.climberSpeed);
+    }
+
+    public void setFrontRightDown() {
+        frontRight.set(-Constants.climberSpeed);
+    }
+
+    public void frontRightOff() {
+        frontRight.set(0);
+    }
+
+    public void setRearLeftUp() {
+        rearLeft.set(Constants.climberSpeed);
+    }
+
+    public void setRearLeftDown() {
+        rearLeft.set(-Constants.climberSpeed);
+    }
+
+    public void rearLeftOff() {
+        rearLeft.set(0);
+    }
+
+    public void setRearRightUp() {
+        rearRight.set(Constants.climberSpeed);
+    }
+
+    public void setRearRightDown() {
+        rearRight.set(-Constants.climberSpeed);
+    }
+
+    public void rearRightOff() {
+        rearRight.set(0);
+    }
+
+
+
+
     public void setFrontUp() {
         frontGroup.set(Constants.climberSpeed);
     }
