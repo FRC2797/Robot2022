@@ -5,18 +5,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Navx;
 
-//TODO: Needs testing
 public class DriveRotation extends CommandBase {
     Drivetrain drivetrain;
     Navx navx;
@@ -26,8 +23,7 @@ public class DriveRotation extends CommandBase {
     PIDController pidController;
     XboxController xboxController;
     double kP = Constants.driveRotationkP;
-    double kI = Constants.driveRotationkI;
-    double kD = Constants.driveRotationkD;
+    double minTerm = Constants.driveRotationMinimumTerm;  
 
     // distance should be given in feet
     public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx, XboxController xboxController) {
@@ -37,11 +33,11 @@ public class DriveRotation extends CommandBase {
         this.navx = navx;
         this.rotation = rotation;
         this.xboxController = xboxController;
-        this.pidController = new PIDController(kP, kI, kD);
+        this.pidController = new PIDController(kP, 0, 0);
         this.pidController.setSetpoint(rotation);
-        withName("rotate " + rotation); 
+        withName("rotate " + rotation);
         
-        this.pidController.setTolerance(2);
+        this.pidController.setTolerance(1);
         addRequirements(drivetrain, navx);
 
     }
@@ -59,8 +55,8 @@ public class DriveRotation extends CommandBase {
 
     @Override
     public void execute() {
-        SmartDashboard.putNumber("Driverotation navx rotation", navx.getRotation());
-        drivetrain.drive(0, 0, pidController.calculate(navx.getRotation()));
+        double calculate = pidController.calculate(navx.getRotation());
+        drivetrain.drive(0, 0, calculate <= minTerm ? minTerm : calculate);
     }
 
     @Override
