@@ -329,8 +329,16 @@ public class RobotContainer {
     dpadRight.and(isManual).whileActiveOnce(climberRearUp, true);
 
     // Climbing
-    rBump.whileHeld(climberFrontRightUp);
-    rTrig.whileActiveContinuous(climberFrontRightDown);
+    leftStickUp.and(isClimber).whileActiveOnce(climberRearLeftUp);
+    leftStickDown.and(isClimber).whileActiveOnce(climberRearLeftDown);
+    rightStickUp.and(isClimber).whileActiveOnce(climberRearRightUp);
+    rightStickDown.and(isClimber).whileActiveOnce(climberRearRightDown);
+
+    lBump.and(isClimber).whileActiveOnce(climberFrontLeftUp);
+    lTrig.and(isClimber).whileActiveOnce(climberFrontLeftDown);
+    rBump.and(isClimber).whileActiveOnce(climberFrontRightUp);
+    rTrig.and(isClimber).whileActiveOnce(climberFrontRightDown);
+
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));

@@ -18,16 +18,6 @@ Set up tests for
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode 
 
-Individual climber arm controls:
-    - left stick is rear left arm
-    - right stick is rear right arm
-
-    - ltrig front left arm down
-    - lbump front left arm up
-
-    - rtrig front right arm up
-    - rbump is front right arm down
-
 semi auto: driver confirms shot in semi auto
     - right trigger to activate and it just sits revved
         - stops revving once right trigger is released
