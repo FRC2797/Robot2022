@@ -26,7 +26,7 @@ public class IndexRevolve extends CommandBase {
 
   @Override
   public void execute() {
-    index.setSpeed(-pidController.calculate(index.getOutputRotations()));
+    index.setSpeed(pidController.calculate(index.getOutputRotations()));
   }
 
   @Override
