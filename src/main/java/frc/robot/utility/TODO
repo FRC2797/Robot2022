@@ -7,7 +7,11 @@ TODO LIST
         - Test WaitUntilPeakShooterRPM
         - Test Driverotation
 
+3 booleans for each mode
 
+Start button switches between semi auto and manual
+Back button goes to climbing
+start button from climb goes to semi auto
 
 add flywheel rev rumble
 

@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -22,8 +21,8 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
-import frc.robot.commands.shooterRevLimelightDistance;
 import frc.robot.commands.WaitUntilPeakShooterRPM;
+import frc.robot.commands.shooterRevLimelightDistance;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -40,17 +39,35 @@ public class RobotContainer {
   final private Index index = new Index();
   final private Navx navx = new Navx();
   final private Climber climber = new Climber();
+
   public enum Scheme {
     manual(1),
     semiAuto(2),
     climber(3);
 
     public final int value;
+
     Scheme(int value) {
       this.value = value;
     }
+
+    public String toString() {
+      return name();
+    }
+
+    public static String stringFromValue(int value) {
+      if (value == Scheme.manual.value) {
+        return "manual";
+      } else if (value == Scheme.semiAuto.value) {
+        return "semiAuto";
+      } else if (value == Scheme.climber.value) {
+        return "climber";
+      }
+      return "invalid value";
+    }
   }
-  private int currentScheme = Scheme.manual.value; 
+
+  private int currentScheme = Scheme.manual.value;
 
   final private XboxController xboxController = new XboxController(0);
 
@@ -73,32 +90,20 @@ public class RobotContainer {
   };
 
   final private JoystickButton rBump = new JoystickButton(xboxController, XboxController.Button.kRightBumper.value);
-  final private Trigger rBumpManual = rBump.and(isManual);
-  final private Trigger rBumpSemiAuto = rBump.and(isManual.negate());
 
   final private JoystickButton lBump = new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value);
-  final private Trigger lBumpManual = lBump.and(isManual);
-  final private Trigger lBumpSemiAuto = lBump.and(isManual.negate());
 
   final private JoystickButton bButt = new JoystickButton(xboxController, XboxController.Button.kB.value);
-  final private Trigger bButtManual = bButt.and(isManual);
-  final private Trigger bButtSemiAuto = bButt.and(isManual.negate());
 
   final private JoystickButton aButt = new JoystickButton(xboxController, XboxController.Button.kA.value);
-  final private Trigger aButtManual = aButt.and(isManual);
-  final private Trigger aButtSemiAuto = aButt.and(isManual.negate());
 
   final private JoystickButton yButt = new JoystickButton(xboxController, XboxController.Button.kY.value);
-  final private Trigger yButtManual = yButt.and(isManual);
-  final private Trigger yButtSemiAuto = yButt.and(isManual.negate());
 
   final private JoystickButton xButt = new JoystickButton(xboxController, XboxController.Button.kX.value);
-  final private Trigger xButtManual = xButt.and(isManual);
-  final private Trigger xButtSemiAuto = xButt.and(isManual.negate());
 
   final private JoystickButton startButt = new JoystickButton(xboxController, XboxController.Button.kStart.value);
-  // Back buttons is used for testing commands
-  final private JoystickButton backButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
+  // Rear buttons is used for testing commands
+  final private JoystickButton RearButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
 
   final private JoystickButton leftStickDown = new JoystickButton(xboxController,
       XboxController.Button.kLeftStick.value);
@@ -108,48 +113,36 @@ public class RobotContainer {
       return xboxController.getPOV() == 0 ? true : false;
     };
   };
-  final private Trigger dpadUpManual = dpadUp.and(isManual);
-  final private Trigger dpadUpSemiAuto = dpadUp.and(isManual.negate());
 
   final private Trigger dpadRight = new Trigger() {
     public boolean get() {
       return xboxController.getPOV() == 90 ? true : false;
     };
   };
-  final private Trigger dpadRightManual = dpadRight.and(isManual);
-  final private Trigger dpadRightSemiAuto = dpadRight.and(isManual.negate());
 
   final private Trigger dpadDown = new Trigger() {
     public boolean get() {
       return xboxController.getPOV() == 180 ? true : false;
     };
   };
-  final private Trigger dpadDownManual = dpadDown.and(isManual);
-  final private Trigger dpadDownSemiAuto = dpadDown.and(isManual.negate());
 
   final private Trigger dpadLeft = new Trigger() {
     public boolean get() {
       return xboxController.getPOV() == 270 ? true : false;
     };
   };
-  final private Trigger dpadLeftManual = dpadLeft.and(isManual);
-  final private Trigger dpadLeftSemiAuto = dpadLeft.and(isManual.negate());
 
   final private Trigger rTrig = new Trigger() {
     public boolean get() {
       return xboxController.getRightTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
-  final private Trigger rTrigManual = rTrig.and(isManual);
-  final private Trigger rTrigSemiAuto = rTrig.and(isManual.negate());
 
   final private Trigger lTrig = new Trigger() {
     public boolean get() {
       return xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
-  final private Trigger lTrigManual = lTrig.and(isManual);
-  final private Trigger lTrigSemiAuto = lTrig.and(isManual.negate());
 
   final Command teleopDriving;
 
@@ -178,6 +171,15 @@ public class RobotContainer {
   final Command aimShootThenIndexWithCondition;
   final Command waitUntilPeakShooterRPM;
 
+  final Command climberFrontRightUp;
+  final Command climberFrontRightDown;
+  final Command climberFrontLeftUp;
+  final Command climberFrontLeftDown;
+  final Command climberRearRightUp;
+  final Command climberRearRightDown;
+  final Command climberRearLeftUp;
+  final Command climberRearLeftDown;
+
   // Command
   public RobotContainer() {
     drivetrain.resetEncoders();
@@ -191,7 +193,6 @@ public class RobotContainer {
      */
 
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
-
 
     teleopDriving = new RunCommand(() -> {
       if (!leftStickDown.get()) {
@@ -232,6 +233,24 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
+    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, climber).withName("climberFrontRightUp");
+    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff, climber)
+        .withName("climberFrontRightDown");
+
+    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, climber).withName("climberFrontLeftUp");
+    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff, climber)
+        .withName("climberFrontLeftDown");
+
+  
+        climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, climber).withName("climberRearRightUp");
+        climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, climber)
+            .withName("climberRearRightDown");
+    
+        climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, climber).withName("climberRearLeftUp");
+        climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, climber)
+            .withName("climberRearLeftDown");    
+    
+
     aimShootThenIndex = new SequentialCommandGroup(
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelRaceGroup(shooterRevLimelightDistance,
@@ -247,40 +266,43 @@ public class RobotContainer {
         new RunCommand(() -> {
           SmartDashboard.putNumber("Distance", limelight.getDistance());
           SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putBoolean("isManual", isManualBool);
+          SmartDashboard.putString("Current mode", Scheme.stringFromValue(currentScheme));
         }, limelight).withName("ll SmartDashboard.put() values"));
 
     drivetrain.setDefaultCommand(teleopDriving);
 
-    //TODO: make dpad switch it
-    // startButt.whenPressed(() -> {
-    //   isManualBool = isManualBool ? false : true;
-    //   CommandScheduler.getInstance().cancelAll();
-    // });
+    // Scheme switching
+    dpadUp.whenActive(() -> currentScheme = Scheme.climber.value);
+    dpadRight.whenActive(() -> currentScheme = Scheme.semiAuto.value);
+    dpadDown.whenActive(() -> currentScheme = Scheme.manual.value);
 
     // Semi-autonomous
-    lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(controllerIntakeInOnOff);
-    lTrigSemiAuto.and(bButtSemiAuto)
+    lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
+    lTrig.and(bButt).and(isSemiAuto)
         .whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
-    rTrigSemiAuto.toggleWhenActive(aimShootThenIndex);
-    rBumpSemiAuto.toggleWhenActive(indexFromIntake);
+    rTrig.and(isSemiAuto).toggleWhenActive(aimShootThenIndex);
+    rBump.and(isSemiAuto).toggleWhenActive(indexFromIntake);
 
-    dpadUpSemiAuto.whileActiveOnce(climberFrontUp, true);
-    dpadDownSemiAuto.whileActiveOnce(climberFrontDown, true);
-    dpadLeftSemiAuto.whileActiveOnce(climberRearDown, true);
-    dpadRightSemiAuto.whileActiveOnce(climberRearUp, true);
+    dpadUp.and(isSemiAuto).whileActiveOnce(climberFrontUp, true);
+    dpadDown.and(isSemiAuto).whileActiveOnce(climberFrontDown, true);
+    dpadLeft.and(isSemiAuto).whileActiveOnce(climberRearDown, true);
+    dpadRight.and(isSemiAuto).whileActiveOnce(climberRearUp, true);
 
     // Manual
-    lTrigManual.and(bButtManual.negate()).whileActiveOnce(controllerIntakeInOnOff);
-    lTrigManual.and(bButtManual).whileActiveOnce(controllerIntakeOutOnOff);
-    rBumpManual.and(bButtManual.negate()).whileActiveOnce(controllerIndexInOnOff);
-    rBumpManual.and(bButtManual).whileActiveOnce(controllerIndexOutOnOff);
-    rTrigManual.whileActiveContinuous(shooterAnalog);
+    lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
+    lTrig.and(isManual).and(bButt).whileActiveOnce(controllerIntakeOutOnOff);
+    rBump.and(isManual).and(bButt.negate()).whileActiveOnce(controllerIndexInOnOff);
+    rBump.and(isManual).and(bButt).whileActiveOnce(controllerIndexOutOnOff);
+    rTrig.and(isManual).whileActiveContinuous(shooterAnalog);
 
-    dpadUpManual.whileActiveOnce(climberFrontUp, true);
-    dpadDownManual.whileActiveOnce(climberFrontDown, true);
-    dpadLeftManual.whileActiveOnce(climberRearDown, true);
-    dpadRightManual.whileActiveOnce(climberRearUp, true);
+    dpadUp.and(isManual).whileActiveOnce(climberFrontUp, true);
+    dpadDown.and(isManual).whileActiveOnce(climberFrontDown, true);
+    dpadLeft.and(isManual).whileActiveOnce(climberRearDown, true);
+    dpadRight.and(isManual).whileActiveOnce(climberRearUp, true);
+
+    //Climbing
+    rBump.whileHeld(climberFrontRightUp);
+    rTrig.whileActiveContinuous(climberFrontRightDown);
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
