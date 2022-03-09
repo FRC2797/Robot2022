@@ -18,7 +18,7 @@ Set up tests for
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode 
     - WaitUntilPeakShooterRPM
-    - IndexRevolve, doesn't work?
+    - IndexRevolve
 
 tuning
     Driverotation (kP and minimum)

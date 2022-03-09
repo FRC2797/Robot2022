@@ -6,12 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -71,8 +71,7 @@ public class RobotContainer {
 
   private int currentScheme = Scheme.semiAuto.value;
 
-
-  //Trigger intializations
+  // Trigger intializations
   final private XboxController xboxController = new XboxController(0);
 
   final private Trigger isManual = new Trigger() {
@@ -173,7 +172,7 @@ public class RobotContainer {
   };
   //
 
-  //Command declarations
+  // Command declarations
   final Command teleopDriving;
 
   final Command shooterAnalog;
@@ -194,17 +193,25 @@ public class RobotContainer {
   final Command climberRearRightDown;
   final Command climberRearLeftUp;
   final Command climberRearLeftDown;
+  SendableChooser<Command> chooser;
   //
 
-
   public RobotContainer() {
-    //
+    // Encoder resetting
     drivetrain.resetEncoders();
     index.resetEncoder();
     navx.reset();
     //
 
-    //Command Initilizations
+    //Sendable chooser for autonomous
+    chooser = new SendableChooser<>();
+    chooser.setDefaultOption("Get data from colin1", getAutonomousCommand(0));
+    chooser.addOption("Get data from colin2", getAutonomousCommand(0));
+    chooser.addOption("Get data from colin3", getAutonomousCommand(0));
+    SmartDashboard.putData(chooser);
+    //
+
+    // Command Initilizations
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
     shooterAnalog = new FunctionalCommand(() -> {
@@ -253,10 +260,6 @@ public class RobotContainer {
             .withName("aimShootThenIndexWithCondition");
     //
 
-    //
-
-    //
-
     // Scheme switching
     startButt.whenPressed(() -> {
       CommandScheduler.getInstance().cancelAll();
@@ -278,11 +281,13 @@ public class RobotContainer {
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
     lTrig.and(bButt).and(isSemiAuto)
         .whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff(), indexOutOnOff()));
-    
-    //Intention is that the user can aimRevThenWait whenever they want, they then use the right bumper to fire off what ever balls 
+
+    // Intention is that the user can aimRevThenWait whenever they want, they then
+    // use the right bumper to fire off what ever balls
     // they have. The user then manually ends aimRevThenWait again
     rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWaitWithCondition);
-    rBump.and(isSemiAuto).toggleWhenActive(new IndexRevolve(Constants.indexFromIntakeRevolutions, index).andThen(xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
+    rBump.and(isSemiAuto).toggleWhenActive(new IndexRevolve(Constants.indexFromIntakeRevolutions, index).andThen(
+        xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
 
     // Manual
     lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
@@ -389,24 +394,21 @@ public class RobotContainer {
         () -> xboxController.setRumble(rType, 0)).withTimeout(waitInSeconds).withName("xboxControllerRumble");
   }
 
-  public Command getAutonomousCommand() {
-
-    // We start with one ball ready to index into shooter
-    // Crashed in auto without trycatch, I think the exception is caused by navx not
-    // existing
-    try {
-      return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
-          new DriveDistance(Constants.autoDriveDistance, drivetrain),
+  public Command getAutonomousCommand(double distanceInInches) {
+    //we start with oneball ready to index into the shooter
+    return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
+          new DriveDistance(distanceInInches, drivetrain),
           new DriveRotation(180, drivetrain, navx, xboxController),
           new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
           new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
-              new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter), new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
-                  new WaitUntilPeakShooterRPM(shooter), new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
-    } catch (Exception e) {
-      System.out.println("Exception caught in getAutonomousCommand(), is navx properly plugged? Try restarting");
-      return new InstantCommand();
-    }
+              new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
+                  new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
+                  new WaitUntilPeakShooterRPM(shooter),
+                  new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+  }
 
+  public Command getAutonomousCommand() {
+    return chooser.getSelected();
   }
 
   public void putSmartDashboardValues() {
