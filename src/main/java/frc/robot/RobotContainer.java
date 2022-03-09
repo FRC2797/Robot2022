@@ -291,11 +291,6 @@ public class RobotContainer {
     rBump.and(isManual).and(bButt).whileActiveOnce(indexOutOnOff());
     rTrig.and(isManual).whileActiveContinuous(shooterAnalog);
 
-    dpadUp.and(isManual).whileActiveOnce(climberFrontUp, true);
-    dpadDown.and(isManual).whileActiveOnce(climberFrontDown, true);
-    dpadLeft.and(isManual).whileActiveOnce(climberRearDown, true);
-    dpadRight.and(isManual).whileActiveOnce(climberRearUp, true);
-
     // Climbing
     leftStickUp.and(isClimber).whileActiveOnce(climberRearLeftUp);
     leftStickDown.and(isClimber).whileActiveOnce(climberRearLeftDown);
