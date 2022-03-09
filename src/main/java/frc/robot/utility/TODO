@@ -1,37 +1,26 @@
 TODO LIST
-- Testing
-    + Climber code
-    + Auto code
-    + Aim shoot then index after drive rotation is tuned
-        - Test Aim
-        - Test WaitUntilPeakShooterRPM
-        - Test Driverotation
 
 Set up tests for
     - Camera
     - Driverotation
-    - Drivedistance
-    - Climber
+    - Autocode
+        - Driverotation
+        - Drivedistance
+        - Driverotation(limelight.getHorizontalOffset())
+        - WaitUntilPeakShooterRPM
+    - Climber code
     - Shuffleboard
-    - Driverotation
     - Basic controls
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode 
     - WaitUntilPeakShooterRPM
     - IndexRevolve, doesn't work?
 
-semi auto: driver confirms shot in semi auto
-    - right trigger to activate and it just sits revved
-        - stops revving once right trigger is released
-        - constant rumble when up to speed
-        - Small rumble when completely locked
-        - prime to shooter and storage to prime, one button press
-
-Find what is crashing and fix them
-
 tuning
     Driverotation (kP and minimum)
     Drivedistance (kP and minimum)
     WaitUntilPeakShooterRPM (Percentage and wait time)
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
+
+Find what is crashing and fix them
 
