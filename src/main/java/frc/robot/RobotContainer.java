@@ -177,28 +177,14 @@ public class RobotContainer {
   final Command teleopDriving;
 
   final Command shooterAnalog;
-  final Command shooterRevLimelightDistance;
-  final Command indexFromIntake;
-  final Command indexIntoShooter;
   final Command aimRevThenWait;
   final Command drivetrainTest;
-
-  final Command autoIntakeInOnOff;
-  final Command autoIntakeOutOnOff;
-  final Command autoIndexInOnOff;
-  final Command autoIndexOutOnOff;
-
-  final Command controllerIntakeInOnOff;
-  final Command controllerIntakeOutOnOff;
-  final Command controllerIndexInOnOff;
-  final Command controllerIndexOutOnOff;
 
   final Command climberFrontUp;
   final Command climberFrontDown;
   final Command climberRearUp;
   final Command climberRearDown;
   final Command aimRevThenWaitWithCondition;
-  final Command waitUntilPeakShooterRPM;
 
   final Command climberFrontRightUp;
   final Command climberFrontRightDown;
@@ -236,24 +222,6 @@ public class RobotContainer {
       return false;
     }, shooter).withName("shooterAnalog");
 
-    shooterRevLimelightDistance = new shooterRevLimelightDistance(shooter, limelight);
-
-    waitUntilPeakShooterRPM = new WaitUntilPeakShooterRPM(shooter);
-
-    indexFromIntake = new IndexRevolve(Constants.indexFromIntakeRevolutions, index);
-
-    indexIntoShooter = new IndexRevolve(Constants.indexIntoShooterRevolutions, index);
-
-    autoIntakeInOnOff = intakeInOnOff();
-    autoIntakeOutOnOff = intakeOutOnOff();
-    autoIndexInOnOff = indexInOnOff();
-    autoIndexOutOnOff = indexOutOnOff();
-
-    controllerIntakeInOnOff = intakeInOnOff();
-    controllerIntakeOutOnOff = intakeOutOnOff();
-    controllerIndexInOnOff = indexInOnOff();
-    controllerIndexOutOnOff = indexOutOnOff();
-
     climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
     climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber)
         .withName("climberFrontDown");
@@ -282,8 +250,8 @@ public class RobotContainer {
 
     aimRevThenWait = new SequentialCommandGroup(
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
-        new ParallelRaceGroup(shooterRevLimelightDistance,
-            waitUntilPeakShooterRPM
+        new ParallelRaceGroup(new shooterRevLimelightDistance(shooter, limelight),
+            new WaitUntilPeakShooterRPM(shooter)
                 .andThen(xboxControllerStartEndRumbleCommand(RumbleType.kRightRumble, 0.1, 9999, "Waiting for index"))))
                     .withName("aimRevThenWait");
 
@@ -315,14 +283,14 @@ public class RobotContainer {
     });
 
     // Semi-autonomous
-    lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
+    lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
     lTrig.and(bButt).and(isSemiAuto)
-        .whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
+        .whileActiveOnce(new ParallelCommandGroup(intakeOutOnOff(), indexOutOnOff()));
     
     //Intention is that the user can aimRevThenWait whenever they want, they then use the right bumper to fire off what ever balls 
     // they have. The user then manually ends aimRevThenWait again
-    rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWait);
-    rBump.and(isSemiAuto).toggleWhenActive(indexFromIntake.andThen(xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
+    rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWaitWithCondition);
+    rBump.and(isSemiAuto).toggleWhenActive(new IndexRevolve(Constants.indexFromIntakeRevolutions, index).andThen(xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
 
     dpadUp.and(isSemiAuto).whileActiveOnce(climberFrontUp, true);
     dpadDown.and(isSemiAuto).whileActiveOnce(climberFrontDown, true);
@@ -330,10 +298,10 @@ public class RobotContainer {
     dpadRight.and(isSemiAuto).whileActiveOnce(climberRearUp, true);
 
     // Manual
-    lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
-    lTrig.and(isManual).and(bButt).whileActiveOnce(controllerIntakeOutOnOff);
-    rBump.and(isManual).and(bButt.negate()).whileActiveOnce(controllerIndexInOnOff);
-    rBump.and(isManual).and(bButt).whileActiveOnce(controllerIndexOutOnOff);
+    lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
+    lTrig.and(isManual).and(bButt).whileActiveOnce(intakeOutOnOff());
+    rBump.and(isManual).and(bButt.negate()).whileActiveOnce(indexInOnOff());
+    rBump.and(isManual).and(bButt).whileActiveOnce(indexOutOnOff());
     rTrig.and(isManual).whileActiveContinuous(shooterAnalog);
 
     dpadUp.and(isManual).whileActiveOnce(climberFrontUp, true);
@@ -434,13 +402,13 @@ public class RobotContainer {
     // Crashed in auto without trycatch, I think the exception is caused by navx not
     // existing
     try {
-      return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
+      return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
           new DriveDistance(Constants.autoDriveDistance, drivetrain),
           new DriveRotation(180, drivetrain, navx, xboxController),
           new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
-          new ParallelCommandGroup(shooterRevLimelightDistance,
-              new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
-                  waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
+          new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
+              new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter), new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
+                  new WaitUntilPeakShooterRPM(shooter), new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
     } catch (Exception e) {
       System.out.println("Exception caught in getAutonomousCommand(), is navx properly plugged? Try restarting");
       return new InstantCommand();
