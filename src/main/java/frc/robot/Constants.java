@@ -74,7 +74,9 @@ public final class Constants {
     public static final double minimum = 0;
 
     public static final double driveDistanceTolerance = 0.1;
-    public static final double driveDistancekP = 0.01;
+    public static final double driveDistancekP = 0.003;
+    public static final double driveDistanceMinimumTerm = 0.2;
+    
 
     //driverotation kP and minimum term taken/based on from a commit titled "DRIVEROTATION WORKING" sha: 1e1c7d929eb4b0a845bc1ba85969514ee002f05c
     public static final double driveRotationkP = 0.003;

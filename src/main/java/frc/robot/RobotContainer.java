@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -381,7 +379,7 @@ public class RobotContainer {
     // Crashed in auto without trycatch, I think the exception is caused by navx not existing
     try {
       return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
-        new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
+        new DriveDistance(Constants.autoDriveDistance, drivetrain),
         new DriveRotation(180, drivetrain, navx, xboxController),
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelCommandGroup(shooterRevLimelightDistance,

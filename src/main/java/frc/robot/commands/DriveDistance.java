@@ -4,49 +4,48 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Navx;
 
-//TODO: Needs testing
 public class DriveDistance extends CommandBase {
     Drivetrain drivetrain;
-    Navx navx;
-    double rotation;
     double distance;
-    //distance should be given in feet
-    public DriveDistance(double distance, Drivetrain drivetrain, Navx navx) {
+    double kP = Constants.driveDistancekP;
+    double minTerm = Constants.driveDistanceMinimumTerm;
+    PIDController pidController = new PIDController(kP, 0, 0);
+
+
+    //distance should be given in inches
+    public DriveDistance(double distance, Drivetrain drivetrain) {
         this.drivetrain = drivetrain; 
-        this.navx = navx; 
         this.distance = distance;
-        addRequirements(drivetrain, navx, navx);
+        this.pidController.setSetpoint(distance);
+        this.pidController.setTolerance(5);
+        addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        navx.reset();
+        drivetrain.resetEncoders();
     }
 
     @Override
-    public void execute() {
-        /* TODO: - The getRotation is assumed that if it goes back to the original rotation it goes back to zero. 
-                 - Might need a really low Proportional term
-        */
-        
-        double error = navx.getRotation();
-        //FIXME: the rotation autocorrecting isn't working
-        drivetrain.drive(1, 0, 0);
+    public void execute() {     
+        double calculate = pidController.calculate(drivetrain.getDistanceDrivenInInches());
+        drivetrain.drive(calculate <= minTerm ? minTerm : calculate, 0, 0);
     
     }
 
     @Override
     public void end(boolean interrupted) {
         drivetrain.drive(0, 0, 0);
-        navx.reset();
+        drivetrain.resetEncoders();
     }
 
     @Override
     public boolean isFinished() {
-        return drivetrain.getDistanceDriven() >= distance ? true : false;
+        return drivetrain.getDistanceDrivenInInches() >= distance ? true : false;
     }
 }

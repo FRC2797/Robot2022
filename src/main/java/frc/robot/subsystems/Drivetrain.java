@@ -66,8 +66,8 @@ public class Drivetrain extends SubsystemBase {
     rearRightEnc.setPosition(0);
   }
 
-  public double getDistanceDriven() {
-    return Constants.encoderConstantsDrivetrain.wheelCircumference / getWheelRotation();
+  public double getDistanceDrivenInInches() {
+    return Constants.encoderConstantsDrivetrain.wheelCircumference * getWheelRotation();
   }
 
   public double getWheelRotation() {
