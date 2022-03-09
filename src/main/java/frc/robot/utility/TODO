@@ -4,6 +4,7 @@ How to save shuffleboard layouts?
 test for
     - Camera
     - Driverotation
+    - Switch between auto schemes
     - Autocode
         - Driverotation
         - Drivedistance
@@ -15,7 +16,6 @@ test for
         - Climber switch scheme with individual climbers
         - Slow move
         % everything tested except frontRight cus its unplugged 
-    - Shuffleboard
     - Basic controls
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode
@@ -25,7 +25,9 @@ test for
         * Right bumper index only working every other button press
             + Add a timer?
     - WaitUntilPeakShooterRPM
+        % Finished tuning and testing
     - IndexRevolve
+        % Tuned and tested
     - actually shooting balls
 
 tuning
@@ -33,6 +35,7 @@ tuning
         % Finished tuning and it works really good
     Drivedistance (kP and minimum)
     WaitUntilPeakShooterRPM (Percentage and wait time)
+        % Finished tuning and testing
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
         % finished tuning and testing
     limelight (angle (getting it and deciding it))
