@@ -288,8 +288,8 @@ public class RobotContainer {
                     .withName("aimRevThenWait");
 
     aimRevThenWaitWithCondition = new ConditionalCommand(aimRevThenWait,
-        xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.2, 0.1, "Error Rumble aimRevThenWait"),
-        () -> (limelight.getHorizontalOffset() != -99) && (!navx.isConnected()))
+        xboxControllerStartEndRumbleCommand(RumbleType.kRightRumble, 0.2, 0.1, "Error Rumble aimRevThenWait"),
+        () -> (!navx.isConnected()) && (!limelight.getHasTarget()))
             .withName("aimShootThenIndexWithCondition");
     //
 
@@ -322,7 +322,7 @@ public class RobotContainer {
     //Intention is that the user can aimRevThenWait whenever they want, they then use the right bumper to fire off what ever balls 
     // they have. The user then manually ends aimRevThenWait again
     rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWait);
-    rBump.and(isSemiAuto).toggleWhenActive(indexFromIntake);
+    rBump.and(isSemiAuto).toggleWhenActive(indexFromIntake.andThen(xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
 
     dpadUp.and(isSemiAuto).whileActiveOnce(climberFrontUp, true);
     dpadDown.and(isSemiAuto).whileActiveOnce(climberFrontDown, true);

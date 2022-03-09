@@ -18,6 +18,7 @@ Set up tests for
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode 
     - WaitUntilPeakShooterRPM
+    - IndexRevolve, doesn't work?
 
 semi auto: driver confirms shot in semi auto
     - right trigger to activate and it just sits revved
