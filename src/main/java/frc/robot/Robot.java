@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoException;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,8 +26,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     robotContainer = new RobotContainer();
-    robotContainer.setUpCameraFeed();
-
+    try {
+      UsbCamera camera = CameraServer.startAutomaticCapture();
+      camera.setResolution(320, 240);
+    } catch (Exception e) {
+      System.out.println("no camera found");
+    }
   }
 
   @Override
@@ -35,8 +42,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-      CommandScheduler.getInstance().cancelAll();
-      robotContainer.getAutonomousCommand().schedule();
+    CommandScheduler.getInstance().cancelAll();
+    robotContainer.getAutonomousCommand().schedule();
   }
 
   @Override
