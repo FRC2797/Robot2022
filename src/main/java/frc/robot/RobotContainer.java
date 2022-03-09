@@ -323,6 +323,8 @@ public class RobotContainer {
 
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
+    SmartDashboard.putData(new DriveRotation(3, drivetrain, navx, xboxController));
+    SmartDashboard.putData(new DriveRotation(-3, drivetrain, navx, xboxController));
 
   }
 

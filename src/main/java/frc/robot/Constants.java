@@ -80,7 +80,7 @@ public final class Constants {
 
     //driverotation kP and minimum term taken/based on from a commit titled "DRIVEROTATION WORKING" sha: 1e1c7d929eb4b0a845bc1ba85969514ee002f05c
     public static final double driveRotationkP = 0.003;
-    public static final double driveRotationMinimumTerm = 0.2;
+    public static final double driveRotationMinimumTerm = 0.05;
     public static final double driveRotationkI = 0.000;
     public static final double driveRotationkD = 0.000;
 

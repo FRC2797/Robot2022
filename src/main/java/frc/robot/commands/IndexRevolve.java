@@ -30,8 +30,6 @@ public class IndexRevolve extends CommandBase {
   @Override
   public void execute() {
     double calculate = pidController.calculate(index.getOutputRotations());
-    SmartDashboard.putNumber("calculate", calculate);
-    System.out.println(calculate);
     if (Math.abs(calculate) > minimumTerm) {
       index.setSpeed(calculate);
     } else {

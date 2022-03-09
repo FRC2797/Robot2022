@@ -30,8 +30,10 @@ test for
 
 tuning
     Driverotation (kP and minimum)
+        % Finished tuning and it works really good
     Drivedistance (kP and minimum)
     WaitUntilPeakShooterRPM (Percentage and wait time)
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
+        % finished tuning and testing
     limelight (angle (getting it and deciding it))
 
