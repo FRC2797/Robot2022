@@ -11,8 +11,8 @@ test for
         - Driverotation(limelight.getHorizontalOffset())
         - AimRevDistance
     - Climber code
-        - Climber switch scheme with individual climbers  
-        - Slow move 
+        - Climber switch scheme with individual climbers %
+        - Slow move %
         % everything tested  
     - Basic controls
         - Intake backwards and forwards each mode
@@ -37,4 +37,14 @@ tuning
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
         % finished tuning and testing
     limelight (angle (getting it and deciding it))
+
+    last things to do:
+    Driverotation(limelight.getHorizontalOffset())
+    - Camera
+    - Switch between auto schemes
+    - actually shooting balls
+    - making final game shuffle board
+    complicated things that rely on simple things
+        - aimRevThenWait
+
 
