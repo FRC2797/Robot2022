@@ -32,6 +32,7 @@ public class IndexRevolve extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     index.off();
+    index.resetEncoder();
   }
 
   @Override

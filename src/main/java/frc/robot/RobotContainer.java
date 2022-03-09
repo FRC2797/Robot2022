@@ -221,30 +221,33 @@ public class RobotContainer {
       return false;
     }, shooter).withName("shooterAnalog");
 
-    climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff, climber).withName("climberFrontUp");
-    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff, climber)
-        .withName("climberFrontDown");
-    climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
-    climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
-    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, climber)
+    //They don't have climber as a requirement so multiple of them can run at the same time
+    //yes, this is a terrible way of doing it
+    climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff).withName("climberFrontUp");
+    climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff)
+        .withName("climberFrontDown");
+    climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff).withName("climberRearUp");
+    climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff).withName("climberRearDown");
+
+    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff)
         .withName("climberFrontRightUp");
-    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff, climber)
+    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff)
         .withName("climberFrontRightDown");
 
-    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, climber)
+    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff)
         .withName("climberFrontLeftUp");
-    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff, climber)
+    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff)
         .withName("climberFrontLeftDown");
 
-    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, climber)
+    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff)
         .withName("climberRearRightUp");
-    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, climber)
+    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff)
         .withName("climberRearRightDown");
 
-    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, climber)
+    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff)
         .withName("climberRearLeftUp");
-    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, climber)
+    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff)
         .withName("climberRearLeftDown");
 
     aimRevThenWait = new SequentialCommandGroup(

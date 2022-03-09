@@ -24,6 +24,7 @@ public class Climber extends SubsystemBase {
 
     public Climber() {
         brake();
+        frontLeft.setInverted(true);
     }
 
 

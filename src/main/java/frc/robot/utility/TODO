@@ -14,12 +14,13 @@ test for
     - Climber code
         - Climber switch scheme with individual climbers
         - Slow move
-        * can't move both back climber at the same time
+        % everything tested except frontRight cus its unplugged 
     - Shuffleboard
     - Basic controls
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode
         - Shooter analog
+        % basic/manual controls are working correctly
     - Semi Auto controls
         * Right bumper index only working every other button press
             + Add a timer?
