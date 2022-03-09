@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -377,18 +378,22 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
-    return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
+    // Crashed in auto without trycatch, I think the exception is caused by navx not existing
+    try {
+      return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
         new DriveDistance(Constants.autoDriveDistance, drivetrain, navx),
         new DriveRotation(180, drivetrain, navx, xboxController),
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
                 waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
-  }
+    } catch (Exception e) {
+      System.out.println("Exception caught in getAutonomousCommand(), is navx properly plugged? Try restarting");
+      return new InstantCommand(); 
+    }
 
-  public void setUpCameraFeed() {
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(320, 240);
+
+    
   }
 
   public void putSmartDashboardValues() {
