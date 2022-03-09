@@ -10,8 +10,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import static java.lang.Math.tan; 
-import static java.lang.Math.toRadians; 
+import static java.lang.Math.tan;
+import static java.lang.Math.toRadians;
 
 public class Limelight extends SubsystemBase {
 
@@ -23,15 +23,18 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry hasTarget = table.getEntry("tv");
   private double smartDashboardMountingAngle;
 
-
   public Limelight() {
-    SmartDashboard.putNumber("mounting angle", 0); 
+    SmartDashboard.putNumber("mounting angle", 0);
   }
 
   @Override
   public void periodic() {
-    smartDashboardMountingAngle = SmartDashboard.getNumber("mounting angle", -99); 
-    
+    smartDashboardMountingAngle = SmartDashboard.getNumber("mounting angle", -99);
+    horizontalOffset = table.getEntry("tx");
+    verticalOffset = table.getEntry("ty");
+    targetArea = table.getEntry("ta");
+    skew = table.getEntry("ts");
+    hasTarget = table.getEntry("tv");
   }
 
   @Override
