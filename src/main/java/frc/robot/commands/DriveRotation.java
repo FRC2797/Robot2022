@@ -25,8 +25,8 @@ public class DriveRotation extends CommandBase {
     PIDController pidController;
     XboxController xboxController;
     DoubleSupplier doubleSupplier = null; 
-    double kP = Constants.driveRotationkP;
-    double minTerm = Constants.driveRotationMinimumTerm;  
+    double kP = 0.004;
+    double minTerm = 0.07;  
 
     // distance should be given in feet
     public DriveRotation(double rotation, Drivetrain drivetrain, Navx navx, XboxController xboxController) {

@@ -322,9 +322,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    SmartDashboard.putBoolean("Peak Reached", false);
-    yButt.whenPressed(new ParallelCommandGroup(new RunCommand(() -> shooter.setSpeed(0.8)), new WaitUntilPeakShooterRPM(shooter).andThen(() -> SmartDashboard.putBoolean("Peak Reached", true))));
-
+    yButt.whenPressed(new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController));
   }
 
   public double inputFilter(double input) {
@@ -423,5 +421,6 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
     SmartDashboard.putNumber("LL Distance", limelight.getDistance());
+    SmartDashboard.putNumber("getHorizontalOffset()", limelight.getHorizontalOffset());
   }
 }
