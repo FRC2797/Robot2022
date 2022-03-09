@@ -17,7 +17,7 @@ public class WaitUntilPeakShooterRPM extends CommandBase {
   public WaitUntilPeakShooterRPM(Shooter shooter) {
     this.shooter = shooter;
     withName("WaitUntilPeakShooterRPM");
-    //DO NOT ADD SHOOTER SUBSYSTEM
+    // DO NOT ADD SHOOTER SUBSYSTEM
     addRequirements();
   }
 
@@ -30,13 +30,7 @@ public class WaitUntilPeakShooterRPM extends CommandBase {
 
   @Override
   public void execute() {
-    if (timer.get() >= 2) {
-      if ((Math.abs(previousRPM - shooter.getAverageRPM()) / previousRPM) <= 0.02) {
-        cancel();
-      }
-      timer.reset();
-      previousRPM = shooter.getAverageRPM(); 
-    }
+
   }
 
   @Override
@@ -45,7 +39,13 @@ public class WaitUntilPeakShooterRPM extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    // is canceled in the execute
+    if (timer.get() >= 2) {
+      if ((Math.abs(previousRPM - shooter.getAverageRPM()) / previousRPM) <= 0.02) {
+        return true;
+      }
+      timer.reset();
+      previousRPM = shooter.getAverageRPM();
+    }
     return false;
   }
 }
