@@ -129,9 +129,8 @@ public class RobotContainer {
   final private Trigger lTrigManual = lTrig.and(isManual);
   final private Trigger lTrigSemiAuto = lTrig.and(isManual.negate());
 
-  final Command teleopDrivingFullSpeed;
-  final Command teleopDrivingHalfSpeed;
-  final Command conditionalDrivetrainDefaultCommand;
+  final Command teleopDriving;
+
   final Command shooterAnalog;
   final Command shooterRevLimelightDistance;
   final Command indexFromIntake;
@@ -171,24 +170,14 @@ public class RobotContainer {
 
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
-    teleopDrivingFullSpeed = new RunCommand(
-        () -> {
-          drivetrain.drive(
-              inputFilter(-xboxController.getLeftY()),
-              inputFilter(xboxController.getLeftX()),
-              inputFilter(xboxController.getRightX()));
-        }, drivetrain).withName("teleopDrivingFullSpeed");
 
-    teleopDrivingHalfSpeed = new RunCommand(
-        () -> {
-          drivetrain.drive(
-              inputFilter(-xboxController.getLeftY() / 2),
-              inputFilter(xboxController.getLeftX() / 2),
-              inputFilter(xboxController.getRightX() / 2));
-        }, drivetrain).withName("teleopDrivingHalfSpeed");
-
-    conditionalDrivetrainDefaultCommand = new ConditionalCommand(teleopDrivingFullSpeed, teleopDrivingHalfSpeed,
-        () -> !leftStickDown.get());
+    teleopDriving = new RunCommand(() -> {
+      if (!leftStickDown.get()) {
+        teleopDrivingFullSpeed();
+      } else {
+        teleopDrivingHalfSpeed();
+      }
+    }, drivetrain).withName("teleopDriving");
 
     shooterAnalog = new FunctionalCommand(() -> {
     }, () -> {
@@ -239,7 +228,7 @@ public class RobotContainer {
           SmartDashboard.putBoolean("isManual", isManualBool);
         }, limelight).withName("ll SmartDashboard.put() values"));
 
-    drivetrain.setDefaultCommand(conditionalDrivetrainDefaultCommand);
+    drivetrain.setDefaultCommand(teleopDriving);
 
     startButt.whenPressed(() -> {
       isManualBool = isManualBool ? false : true;
@@ -284,6 +273,20 @@ public class RobotContainer {
     SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
     SmartDashboard.putNumber("Right X", xboxController.getRightX());
     SmartDashboard.putNumber("Right Y", xboxController.getRightY());
+  }
+
+  public void teleopDrivingFullSpeed() {
+    drivetrain.drive(
+        inputFilter(-xboxController.getLeftY()),
+        inputFilter(xboxController.getLeftX()),
+        inputFilter(xboxController.getRightX()));
+  }
+
+  public void teleopDrivingHalfSpeed() {
+    drivetrain.drive(
+        inputFilter(-xboxController.getLeftY() / 10),
+        inputFilter(xboxController.getLeftX() / 10),
+        inputFilter(xboxController.getRightX() / 10));
   }
 
   // added to a separate method so it can be reused in multiple places
