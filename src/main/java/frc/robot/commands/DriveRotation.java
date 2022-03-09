@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,6 +24,7 @@ public class DriveRotation extends CommandBase {
     boolean isClockwise;
     PIDController pidController;
     XboxController xboxController;
+    DoubleSupplier doubleSupplier = null; 
     double kP = Constants.driveRotationkP;
     double minTerm = Constants.driveRotationMinimumTerm;  
 
@@ -39,8 +42,12 @@ public class DriveRotation extends CommandBase {
         
         this.pidController.setTolerance(0.5);
         addRequirements(drivetrain, navx);
-
     }
+
+    public DriveRotation(DoubleSupplier doubleSupplier, Drivetrain drivetrain, Navx navx, XboxController xboxController) {
+      this(doubleSupplier.getAsDouble(), drivetrain, navx, xboxController);
+      this.doubleSupplier = doubleSupplier;
+  }
 
     @Override
     public void initialize() {
@@ -51,6 +58,9 @@ public class DriveRotation extends CommandBase {
                             .withName("ERROR: NO NAVX");
         }
         navx.reset();
+        if (doubleSupplier != null) {
+          pidController.setSetpoint(doubleSupplier.getAsDouble());
+        }
     }
 
     @Override
