@@ -7,8 +7,6 @@ TODO LIST
         - Test WaitUntilPeakShooterRPM
         - Test Driverotation
 
-set up a constant and proportional for driveRotation and driveDistance 
-
 Set up tests for
     - Camera
     - Driverotation
@@ -36,4 +34,6 @@ semi auto: driver confirms shot in semi auto
         - constant rumble when up to speed
         - Small rumble when completely locked
         - prime to shooter and storage to prime, one button press
+
+Find what is crashing and fix them
 
