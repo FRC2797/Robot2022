@@ -22,6 +22,15 @@ lbump front left arm up
 rtrig front right arm up
 rbump is front right arm down
 
+semi auto: driver confirms shot in semi auto
+    - right trigger to activate and it just sits revved
+        - stops revving once right trigger is released
+        - constant rumble when up to speed
+        - Small rumble when completely locked
+        - prime to shooter and storage to prime, one button press
+        
+add two methods for each climber button mapping
+
 add flywheel rev rumble
 
 Add a climb mode and put scheme swithcing on dpad

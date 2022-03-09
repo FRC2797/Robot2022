@@ -67,7 +67,7 @@ public class RobotContainer {
     }
   }
 
-  private int currentScheme = Scheme.manual.value;
+  private int currentScheme = Scheme.semiAuto.value;
 
   final private XboxController xboxController = new XboxController(0);
 
@@ -103,7 +103,7 @@ public class RobotContainer {
 
   final private JoystickButton startButt = new JoystickButton(xboxController, XboxController.Button.kStart.value);
   // Rear buttons is used for testing commands
-  final private JoystickButton RearButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
+  final private JoystickButton backButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
 
   final private JoystickButton leftStickDown = new JoystickButton(xboxController,
       XboxController.Button.kLeftStick.value);
@@ -195,10 +195,10 @@ public class RobotContainer {
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
 
     teleopDriving = new RunCommand(() -> {
-      if (!leftStickDown.get()) {
+      if (!isClimber.get()) {
         teleopDrivingFullSpeed();
       } else {
-        teleopDrivingHalfSpeed();
+        teleopDrivingClimber();
       }
     }, drivetrain).withName("teleopDriving");
 
@@ -233,23 +233,25 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff, climber).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff, climber).withName("climberRearDown");
 
-    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, climber).withName("climberFrontRightUp");
+    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, climber)
+        .withName("climberFrontRightUp");
     climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff, climber)
         .withName("climberFrontRightDown");
 
-    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, climber).withName("climberFrontLeftUp");
+    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, climber)
+        .withName("climberFrontLeftUp");
     climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff, climber)
         .withName("climberFrontLeftDown");
 
-  
-        climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, climber).withName("climberRearRightUp");
-        climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, climber)
-            .withName("climberRearRightDown");
-    
-        climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, climber).withName("climberRearLeftUp");
-        climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, climber)
-            .withName("climberRearLeftDown");    
-    
+    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, climber)
+        .withName("climberRearRightUp");
+    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, climber)
+        .withName("climberRearRightDown");
+
+    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, climber)
+        .withName("climberRearLeftUp");
+    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, climber)
+        .withName("climberRearLeftDown");
 
     aimShootThenIndex = new SequentialCommandGroup(
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
@@ -272,9 +274,17 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // Scheme switching
-    dpadUp.whenActive(() -> currentScheme = Scheme.climber.value);
-    dpadRight.whenActive(() -> currentScheme = Scheme.semiAuto.value);
-    dpadDown.whenActive(() -> currentScheme = Scheme.manual.value);
+    startButt.whenPressed(() -> {
+      if (isSemiAuto.get()) {
+        currentScheme = Scheme.manual.value;
+      } else if (isManual.get()) {
+        currentScheme = Scheme.semiAuto.value;
+      } else if (isClimber.get()) {
+        currentScheme = Scheme.semiAuto.value;
+      }
+    });
+
+    backButt.whenPressed(() -> currentScheme = Scheme.climber.value);
 
     // Semi-autonomous
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
@@ -300,7 +310,7 @@ public class RobotContainer {
     dpadLeft.and(isManual).whileActiveOnce(climberRearDown, true);
     dpadRight.and(isManual).whileActiveOnce(climberRearUp, true);
 
-    //Climbing
+    // Climbing
     rBump.whileHeld(climberFrontRightUp);
     rTrig.whileActiveContinuous(climberFrontRightDown);
 
@@ -327,11 +337,29 @@ public class RobotContainer {
         inputFilter(xboxController.getRightX()));
   }
 
-  public void teleopDrivingHalfSpeed() {
-    drivetrain.drive(
-        inputFilter(-xboxController.getLeftY() / 10),
-        inputFilter(xboxController.getLeftX() / 10),
-        inputFilter(xboxController.getRightX() / 10));
+  public void teleopDrivingClimber() {
+    double forward = 0;
+    double sideways = 0;
+    double rotation = 0;
+    final double SLOW_SPEED = 0.2;
+
+    if (dpadUp.get()) {
+      forward += SLOW_SPEED;
+    }
+
+    if (dpadDown.get()) {
+      forward -= SLOW_SPEED;
+    }
+
+    if (dpadRight.get()) {
+      sideways += SLOW_SPEED;
+    }
+
+    if (dpadLeft.get()) {
+      sideways -= SLOW_SPEED;
+    }
+
+    drivetrain.drive(forward, sideways, rotation);
   }
 
   // added to a separate method so it can be reused in multiple places
