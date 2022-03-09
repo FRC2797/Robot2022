@@ -9,7 +9,16 @@ TODO LIST
 
 set up a constant and proportional for driveRotation and driveDistance 
 
-set up the camera
+Set up tests for
+    - Camera
+    - Driverotation
+    - Drivedistance
+    - Climber
+    - Shuffleboard
+    - Driverotation
+    - Basic controls
+        - Intake backwards and forwards each mode
+        - Index backwards and forwards each mode 
 
 Individual climber arm controls:
     - left stick is rear left arm
