@@ -284,11 +284,6 @@ public class RobotContainer {
     rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWaitWithCondition);
     rBump.and(isSemiAuto).toggleWhenActive(new IndexRevolve(Constants.indexFromIntakeRevolutions, index).andThen(xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
 
-    dpadUp.and(isSemiAuto).whileActiveOnce(climberFrontUp, true);
-    dpadDown.and(isSemiAuto).whileActiveOnce(climberFrontDown, true);
-    dpadLeft.and(isSemiAuto).whileActiveOnce(climberRearDown, true);
-    dpadRight.and(isSemiAuto).whileActiveOnce(climberRearUp, true);
-
     // Manual
     lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
     lTrig.and(isManual).and(bButt).whileActiveOnce(intakeOutOnOff());
