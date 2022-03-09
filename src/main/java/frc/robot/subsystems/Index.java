@@ -57,7 +57,7 @@ public class Index extends SubsystemBase {
   }
 
   public double getOutputRotations() {
-    return Math.abs(encoder.getPosition()); 
+    return encoder.getPosition(); 
   }
 
 }
