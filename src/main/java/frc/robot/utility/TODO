@@ -17,6 +17,7 @@ Set up tests for
     - Basic controls
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode 
+    - WaitUntilPeakShooterRPM
 
 semi auto: driver confirms shot in semi auto
     - right trigger to activate and it just sits revved
@@ -26,4 +27,10 @@ semi auto: driver confirms shot in semi auto
         - prime to shooter and storage to prime, one button press
 
 Find what is crashing and fix them
+
+tuning
+    Driverotation (kP and minimum)
+    Drivedistance (kP and minimum)
+    WaitUntilPeakShooterRPM (Percentage and wait time)
+    IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
 
