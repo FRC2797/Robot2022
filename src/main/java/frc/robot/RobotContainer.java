@@ -264,13 +264,6 @@ public class RobotContainer {
     aimShootThenIndexWithCondition = new ConditionalCommand(aimShootThenIndex, xboxControllerRumble,
         () -> limelight.getHorizontalOffset() != -99).withName("aimShootThenIndexWithCondition");
 
-    limelight.setDefaultCommand(
-        new RunCommand(() -> {
-          SmartDashboard.putNumber("Distance", limelight.getDistance());
-          SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-          SmartDashboard.putString("Current mode", Scheme.stringFromValue(currentScheme));
-        }, limelight).withName("ll SmartDashboard.put() values"));
-
     drivetrain.setDefaultCommand(teleopDriving);
 
     // Scheme switching
@@ -389,5 +382,15 @@ public class RobotContainer {
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
                 waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
+  }
+
+  public void putSmartDashboardValues() {
+    SmartDashboard.putString("Current mode", Scheme.stringFromValue(currentScheme));
+    SmartDashboard.putBoolean("Manual", isManual.get());
+    SmartDashboard.putBoolean("Semi Auto", isSemiAuto.get());
+    SmartDashboard.putBoolean("Climber", isClimber.get());
+
+    SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
+    SmartDashboard.putNumber("LL Distance", limelight.getDistance());
   }
 }
