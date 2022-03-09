@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,10 +33,10 @@ public class Drivetrain extends SubsystemBase {
     frontRight.setInverted(true);
 
     mecanumDrive = new MecanumDrive(
-      frontLeft,
-      rearLeft,
-      frontRight,
-      rearRight);
+        frontLeft,
+        rearLeft,
+        frontRight,
+        rearRight);
 
     // Deadband is zero so that it doesn't affect any autonomous code
     // Add deadzone to the inputs themselves
@@ -73,5 +74,19 @@ public class Drivetrain extends SubsystemBase {
   public double getWheelRotation() {
     return (frontLeftEnc.getPosition() + frontRightEnc.getPosition() + rearLeftEnc.getPosition()
         + rearRightEnc.getPosition()) / 4;
+  }
+
+  public void setIdleModetoBrake() {
+    frontLeft.setIdleMode(IdleMode.kBrake);
+    frontRight.setIdleMode(IdleMode.kBrake);
+    rearLeft.setIdleMode(IdleMode.kBrake);
+    rearRight.setIdleMode(IdleMode.kBrake);
+  }
+
+  public void setIdleModeToCoast() {
+    frontLeft.setIdleMode(IdleMode.kCoast);
+    frontRight.setIdleMode(IdleMode.kCoast);
+    rearLeft.setIdleMode(IdleMode.kCoast);
+    rearRight.setIdleMode(IdleMode.kCoast);
   }
 }

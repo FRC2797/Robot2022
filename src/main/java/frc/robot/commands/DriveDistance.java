@@ -13,8 +13,9 @@ public class DriveDistance extends CommandBase {
     Drivetrain drivetrain;
     double distance;
     double kP = Constants.driveDistancekP;
-    double minTerm = Constants.driveDistanceMinimumTerm;
+    double minTerm = 0.1;
     PIDController pidController = new PIDController(kP, 0, 0);
+    boolean encodersReset = false;
 
 
     //distance should be given in inches
@@ -22,20 +23,28 @@ public class DriveDistance extends CommandBase {
         this.drivetrain = drivetrain; 
         this.distance = distance;
         this.pidController.setSetpoint(distance);
-        this.pidController.setTolerance(5);
+        this.pidController.setTolerance(8);
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        drivetrain.resetEncoders();
+      drivetrain.resetEncoders();
     }
 
     @Override
     public void execute() {     
-        double calculate = pidController.calculate(drivetrain.getDistanceDrivenInInches());
-        drivetrain.drive(calculate <= minTerm ? minTerm : calculate, 0, 0);
-    
+      double calculate = pidController.calculate(drivetrain.getDistanceDrivenInInches());
+        if (Math.abs(calculate) > minTerm) {
+            drivetrain.drive(calculate, 0, 0);
+          } else {
+            if (calculate > 0) {
+              drivetrain.drive(minTerm, 0, 0);
+            }
+            if (calculate < 0) {
+              drivetrain.drive(-minTerm, 0, 0);
+            }
+          }
     }
 
     @Override
