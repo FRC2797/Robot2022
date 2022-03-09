@@ -3,27 +3,24 @@ How to save shuffleboard layouts?
 
 test for
     - Camera
-    - Driverotation
     - Switch between auto schemes
     - Autocode
-        - Driverotation
-        - Drivedistance
+        - Driverotation %
+        - Drivedistance % 
+        - WaitUntilPeakShooterRPM % 
         - Driverotation(limelight.getHorizontalOffset())
-        - WaitUntilPeakShooterRPM
         - AimRevDistance
-        - Sendable Chooser
     - Climber code
-        - Climber switch scheme with individual climbers
-        - Slow move
-        % everything tested except frontRight cus its unplugged 
+        - Climber switch scheme with individual climbers  
+        - Slow move 
+        % everything tested  
     - Basic controls
         - Intake backwards and forwards each mode
         - Index backwards and forwards each mode
         - Shooter analog
         % basic/manual controls are working correctly
     - Semi Auto controls
-        * Right bumper index only working every other button press
-            + Add a timer?
+        % working
     - WaitUntilPeakShooterRPM
         % Finished tuning and testing
     - IndexRevolve
@@ -34,6 +31,7 @@ tuning
     Driverotation (kP and minimum)
         % Finished tuning and it works really good
     Drivedistance (kP and minimum)
+        % Finished tuning and it works
     WaitUntilPeakShooterRPM (Percentage and wait time)
         % Finished tuning and testing
     IndexFromIntake, i.e prime a ball in intake (need to adjust rotations possibly)
