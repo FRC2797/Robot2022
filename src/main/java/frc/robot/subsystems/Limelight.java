@@ -15,7 +15,7 @@ import static java.lang.Math.toRadians;
 
 public class Limelight extends SubsystemBase {
 
-  private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-knight");
+  private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   private NetworkTableEntry horizontalOffset = table.getEntry("tx");
   private NetworkTableEntry verticalOffset = table.getEntry("ty");
   private NetworkTableEntry targetArea = table.getEntry("ta");
