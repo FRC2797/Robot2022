@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -382,6 +384,11 @@ public class RobotContainer {
         new ParallelCommandGroup(shooterRevLimelightDistance,
             new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
                 waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
+  }
+
+  public void setUpCameraFeed() {
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(320, 240);
   }
 
   public void putSmartDashboardValues() {
