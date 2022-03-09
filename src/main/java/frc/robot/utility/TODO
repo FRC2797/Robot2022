@@ -8,6 +8,18 @@ TODO LIST
         - Test Driverotation
 
 
+
+add flywheel rev rumble
+
+Add a climb mode and put scheme swithcing on dpad
+- Up is climb
+- right is semi auto
+- down is manual
+
+climb mode
+ - left bumper/trigger is one set of motors
+ - right bumper/trigger is the other set
+
 - Controller mappings on a diagram
 - Driverotation tuning
 - Create slow mode
