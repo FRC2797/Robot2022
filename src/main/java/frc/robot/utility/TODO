@@ -7,20 +7,19 @@ TODO LIST
         - Test WaitUntilPeakShooterRPM
         - Test Driverotation
 
-3 booleans for each mode
+set up a constant and proportional for driveRotation and driveDistance 
 
-Start button switches between semi auto and manual
-Back button goes to climbing
-start button from climb goes to semi auto
+set up the camera
 
-left stick is rear left arm
-right stick is rear right arm
+Individual climber arm controls:
+    - left stick is rear left arm
+    - right stick is rear right arm
 
-ltrig front left arm down
-lbump front left arm up
+    - ltrig front left arm down
+    - lbump front left arm up
 
-rtrig front right arm up
-rbump is front right arm down
+    - rtrig front right arm up
+    - rbump is front right arm down
 
 semi auto: driver confirms shot in semi auto
     - right trigger to activate and it just sits revved
@@ -28,20 +27,4 @@ semi auto: driver confirms shot in semi auto
         - constant rumble when up to speed
         - Small rumble when completely locked
         - prime to shooter and storage to prime, one button press
-        
-add two methods for each climber button mapping
 
-add flywheel rev rumble
-
-Add a climb mode and put scheme swithcing on dpad
-- Up is climb
-- right is semi auto
-- down is manual
-
-climb mode
- - left bumper/trigger is one set of motors
- - right bumper/trigger is the other set
-
-- Controller mappings on a diagram
-- Driverotation tuning
-- Create slow mode
