@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -70,6 +71,8 @@ public class RobotContainer {
 
   private int currentScheme = Scheme.semiAuto.value;
 
+
+  //Trigger intializations
   final private XboxController xboxController = new XboxController(0);
 
   final private Trigger isManual = new Trigger() {
@@ -168,14 +171,16 @@ public class RobotContainer {
       return xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
+  //
 
+  //Command declarations
   final Command teleopDriving;
 
   final Command shooterAnalog;
   final Command shooterRevLimelightDistance;
   final Command indexFromIntake;
   final Command indexIntoShooter;
-  final Command aimShootThenIndex;
+  final Command aimRevThenWait;
   final Command drivetrainTest;
 
   final Command autoIntakeInOnOff;
@@ -192,8 +197,7 @@ public class RobotContainer {
   final Command climberFrontDown;
   final Command climberRearUp;
   final Command climberRearDown;
-  final Command xboxControllerRumble;
-  final Command aimShootThenIndexWithCondition;
+  final Command aimRevThenWaitWithCondition;
   final Command waitUntilPeakShooterRPM;
 
   final Command climberFrontRightUp;
@@ -204,21 +208,19 @@ public class RobotContainer {
   final Command climberRearRightDown;
   final Command climberRearLeftUp;
   final Command climberRearLeftDown;
+  //
 
-  // Command
+
   public RobotContainer() {
+    //
     drivetrain.resetEncoders();
     index.resetEncoder();
     navx.reset();
+    //
 
-    /*
-     * The left y is inverted not because the drive method has negative be forward
-     * but because the controller returns a negative value
-     * forward for left y
-     */
-
+    //Command Initilizations
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
-
+    
     teleopDriving = new RunCommand(() -> {
       if (!isClimber.get()) {
         teleopDrivingFullSpeed();
@@ -278,21 +280,26 @@ public class RobotContainer {
     climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, climber)
         .withName("climberRearLeftDown");
 
-    aimShootThenIndex = new SequentialCommandGroup(
+    aimRevThenWait = new SequentialCommandGroup(
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
         new ParallelRaceGroup(shooterRevLimelightDistance,
-            waitUntilPeakShooterRPM.andThen(indexIntoShooter)))
-                .withName("aimShootThenIndex");
-    xboxControllerRumble = new StartEndCommand(() -> xboxController.setRumble(RumbleType.kLeftRumble, 0.2),
-        () -> xboxController.setRumble(RumbleType.kLeftRumble, 0)).withTimeout(0.1).withName("xboxControllerRumble");
+            waitUntilPeakShooterRPM
+                .andThen(xboxControllerStartEndRumbleCommand(RumbleType.kRightRumble, 0.1, 9999, "Waiting for index"))))
+                    .withName("aimRevThenWait");
 
-    aimShootThenIndexWithCondition = new ConditionalCommand(aimShootThenIndex, xboxControllerRumble,
-        () -> limelight.getHorizontalOffset() != -99).withName("aimShootThenIndexWithCondition");
+    aimRevThenWaitWithCondition = new ConditionalCommand(aimRevThenWait,
+        xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.2, 0.1, "Error Rumble aimRevThenWait"),
+        () -> (limelight.getHorizontalOffset() != -99) && (!navx.isConnected()))
+            .withName("aimShootThenIndexWithCondition");
+    //
 
+    //
     drivetrain.setDefaultCommand(teleopDriving);
+    //
 
     // Scheme switching
     startButt.whenPressed(() -> {
+      CommandScheduler.getInstance().cancelAll();
       if (isSemiAuto.get()) {
         currentScheme = Scheme.manual.value;
       } else if (isManual.get()) {
@@ -302,13 +309,19 @@ public class RobotContainer {
       }
     });
 
-    backButt.whenPressed(() -> currentScheme = Scheme.climber.value);
+    backButt.whenPressed(() -> {
+      CommandScheduler.getInstance().cancelAll();
+      currentScheme = Scheme.climber.value;
+    });
 
     // Semi-autonomous
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(controllerIntakeInOnOff);
     lTrig.and(bButt).and(isSemiAuto)
         .whileActiveOnce(new ParallelCommandGroup(controllerIntakeOutOnOff, controllerIndexOutOnOff));
-    rTrig.and(isSemiAuto).toggleWhenActive(aimShootThenIndex);
+    
+    //Intention is that the user can aimRevThenWait whenever they want, they then use the right bumper to fire off what ever balls 
+    // they have. The user then manually ends aimRevThenWait again
+    rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWait);
     rBump.and(isSemiAuto).toggleWhenActive(indexFromIntake);
 
     dpadUp.and(isSemiAuto).whileActiveOnce(climberFrontUp, true);
@@ -339,7 +352,6 @@ public class RobotContainer {
     rBump.and(isClimber).whileActiveOnce(climberFrontRightUp);
     rTrig.and(isClimber).whileActiveOnce(climberFrontRightDown);
 
-
     // testing
     SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
 
@@ -357,6 +369,11 @@ public class RobotContainer {
   }
 
   public void teleopDrivingFullSpeed() {
+    /*
+     * The left y is inverted not because the drive method has negative be forward
+     * but because the controller returns a negative value
+     * forward for left y
+     */
     drivetrain.drive(
         inputFilter(-xboxController.getLeftY()),
         inputFilter(xboxController.getLeftX()),
@@ -405,25 +422,30 @@ public class RobotContainer {
     return new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
   }
 
+  public Command xboxControllerStartEndRumbleCommand(RumbleType rType, double intensity, double waitInSeconds,
+      String name) {
+    return new StartEndCommand(() -> xboxController.setRumble(rType, intensity),
+        () -> xboxController.setRumble(rType, 0)).withTimeout(waitInSeconds).withName("xboxControllerRumble");
+  }
+
   public Command getAutonomousCommand() {
 
     // We start with one ball ready to index into shooter
-    // Crashed in auto without trycatch, I think the exception is caused by navx not existing
+    // Crashed in auto without trycatch, I think the exception is caused by navx not
+    // existing
     try {
       return new ParallelCommandGroup(autoIntakeInOnOff, new SequentialCommandGroup(
-        new DriveDistance(Constants.autoDriveDistance, drivetrain),
-        new DriveRotation(180, drivetrain, navx, xboxController),
-        new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
-        new ParallelCommandGroup(shooterRevLimelightDistance,
-            new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
-                waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
+          new DriveDistance(Constants.autoDriveDistance, drivetrain),
+          new DriveRotation(180, drivetrain, navx, xboxController),
+          new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
+          new ParallelCommandGroup(shooterRevLimelightDistance,
+              new SequentialCommandGroup(waitUntilPeakShooterRPM, indexIntoShooter,
+                  waitUntilPeakShooterRPM, indexFromIntake, indexIntoShooter))));
     } catch (Exception e) {
       System.out.println("Exception caught in getAutonomousCommand(), is navx properly plugged? Try restarting");
-      return new InstantCommand(); 
+      return new InstantCommand();
     }
 
-
-    
   }
 
   public void putSmartDashboardValues() {
