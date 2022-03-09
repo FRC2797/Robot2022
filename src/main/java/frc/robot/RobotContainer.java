@@ -322,9 +322,8 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    SmartDashboard.putData(new DriveRotation(180, drivetrain, navx, xboxController));
-    SmartDashboard.putData(new DriveRotation(3, drivetrain, navx, xboxController));
-    SmartDashboard.putData(new DriveRotation(-3, drivetrain, navx, xboxController));
+    SmartDashboard.putBoolean("Peak Reached", false);
+    yButt.whenPressed(new ParallelCommandGroup(new RunCommand(() -> shooter.setSpeed(0.8)), new WaitUntilPeakShooterRPM(shooter).andThen(() -> SmartDashboard.putBoolean("Peak Reached", true))));
 
   }
 
