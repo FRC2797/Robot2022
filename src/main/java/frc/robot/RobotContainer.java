@@ -106,8 +106,32 @@ public class RobotContainer {
   // Rear buttons is used for testing commands
   final private JoystickButton backButt = new JoystickButton(xboxController, XboxController.Button.kBack.value);
 
-  final private JoystickButton leftStickDown = new JoystickButton(xboxController,
+  final private JoystickButton leftStickClicked = new JoystickButton(xboxController,
       XboxController.Button.kLeftStick.value);
+
+  final private Trigger leftStickUp = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftY() <= -Constants.drivingDeadzone;
+    };
+  };
+
+  final private Trigger leftStickDown = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftY() >= Constants.drivingDeadzone;
+    };
+  };
+
+  final private Trigger rightStickUp = new Trigger() {
+    public boolean get() {
+      return xboxController.getRightY() <= -Constants.drivingDeadzone;
+    };
+  };
+
+  final private Trigger rightStickDown = new Trigger() {
+    public boolean get() {
+      return xboxController.getRightY() >= Constants.drivingDeadzone;
+    };
+  };
 
   final private Trigger dpadUp = new Trigger() {
     public boolean get() {
