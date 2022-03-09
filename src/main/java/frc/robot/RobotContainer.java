@@ -40,13 +40,35 @@ public class RobotContainer {
   final private Index index = new Index();
   final private Navx navx = new Navx();
   final private Climber climber = new Climber();
-  private boolean isManualBool = true;
+  public enum Scheme {
+    manual(1),
+    semiAuto(2),
+    climber(3);
+
+    public final int value;
+    Scheme(int value) {
+      this.value = value;
+    }
+  }
+  private int currentScheme = Scheme.manual.value; 
 
   final private XboxController xboxController = new XboxController(0);
 
   final private Trigger isManual = new Trigger() {
     public boolean get() {
-      return isManualBool;
+      return currentScheme == Scheme.manual.value;
+    }
+  };
+
+  final private Trigger isSemiAuto = new Trigger() {
+    public boolean get() {
+      return currentScheme == Scheme.semiAuto.value;
+    }
+  };
+
+  final private Trigger isClimber = new Trigger() {
+    public boolean get() {
+      return currentScheme == Scheme.climber.value;
     }
   };
 
@@ -230,10 +252,11 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(teleopDriving);
 
-    startButt.whenPressed(() -> {
-      isManualBool = isManualBool ? false : true;
-      CommandScheduler.getInstance().cancelAll();
-    });
+    //TODO: make dpad switch it
+    // startButt.whenPressed(() -> {
+    //   isManualBool = isManualBool ? false : true;
+    //   CommandScheduler.getInstance().cancelAll();
+    // });
 
     // Semi-autonomous
     lTrigSemiAuto.and(bButtSemiAuto.negate()).whileActiveOnce(controllerIntakeInOnOff);
