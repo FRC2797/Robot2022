@@ -319,7 +319,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    yButt.whenPressed(new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController));
+    yButt.whenPressed(new ShooterRevLimelightDistance(shooter, limelight));
   }
 
   private double inputFilter(double input) {
