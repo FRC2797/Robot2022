@@ -10,6 +10,7 @@ import static java.lang.Math.toRadians;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -21,7 +22,6 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry targetArea = table.getEntry("ta");
   private NetworkTableEntry skew = table.getEntry("ts");
   private NetworkTableEntry hasTarget = table.getEntry("tv");
-  private double smartDashboardMountingAngle;
 
   public Limelight() {
     setPipeline(7);
@@ -45,7 +45,7 @@ public class Limelight extends SubsystemBase {
       return -99;
     } else {
       return (Constants.heightDifference) /
-        tan(toRadians(Constants.mountingAngle +
+        tan(toRadians(SmartDashboard.getNumber("lime mounting angle", 0) +
             verticalOffset.getDouble(-99)));
     }
   }
