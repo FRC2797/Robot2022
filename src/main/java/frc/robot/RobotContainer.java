@@ -275,6 +275,8 @@ public class RobotContainer {
       currentScheme = Scheme.climber.value;
     });
 
+
+    /*** Controls ***/
     // Semi-autonomous
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
     lTrig.and(bButt).and(isSemiAuto)
