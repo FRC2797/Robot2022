@@ -418,7 +418,6 @@ public class RobotContainer {
 
     driverTab.addBoolean("Has Target", limelight::getHasTarget);
     driverTab.addNumber("Horizontal Offset", limelight::getHorizontalOffset);
-    driverTab.addString("Controls", this::getControls);
     chooserTab.add(chooser);
   }
 
