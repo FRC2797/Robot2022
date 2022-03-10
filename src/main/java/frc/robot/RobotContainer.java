@@ -6,6 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -197,19 +200,21 @@ public class RobotContainer {
   //
 
   public RobotContainer() {
+    //Sendable chooser for autonomous
+    chooser = new SendableChooser<>();
+    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub", getAutonomousCommand(57 + 5));
+    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub", getAutonomousCommand(73 + 5));
+    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub", getAutonomousCommand(66 + 5));
+    //
+    
+    putSmartDashboardValues();
     // Encoder resetting
     drivetrain.resetEncoders();
     index.resetEncoder();
     navx.reset();
     //
 
-    //Sendable chooser for autonomous
-    chooser = new SendableChooser<>();
-    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub", getAutonomousCommand(57 + 5));
-    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub", getAutonomousCommand(73 + 5));
-    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub", getAutonomousCommand(66 + 5));
-    SmartDashboard.putData(chooser);
-    //
+    
 
     // Command Initilizations
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
@@ -409,15 +414,20 @@ public class RobotContainer {
     return chooser.getSelected();
   }
 
-  public void putSmartDashboardValues() {
-    SmartDashboard.putString("Current mode", Scheme.stringFromValue(currentScheme));
-    SmartDashboard.putBoolean("Manual", isManual.get());
-    SmartDashboard.putBoolean("Semi Auto", isSemiAuto.get());
-    SmartDashboard.putBoolean("Climber", isClimber.get());
 
-    SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
-    SmartDashboard.putNumber("LL Distance", limelight.getDistance());
-    SmartDashboard.putNumber("getHorizontalOffset()", limelight.getHorizontalOffset());
+  ShuffleboardTab driverTab = Shuffleboard.getTab("driver");
+  ShuffleboardTab chooserTab = Shuffleboard.getTab("chooserTab");
+  private void putSmartDashboardValues() {
+    driverTab.addBoolean("Manual", isManual::get);
+    driverTab.addBoolean("Semi Auto", isSemiAuto::get);
+    driverTab.addBoolean("Climber", isClimber::get);
+
+    driverTab.addNumber("LL Distance", limelight::getDistance);
+
+    driverTab.addBoolean("Has Target", limelight::getHasTarget);
+    driverTab.addNumber("Horizontal Offset", limelight::getHorizontalOffset);
+
+    chooserTab.add(chooser);
   }
 
   public void displayControllerSticks() {

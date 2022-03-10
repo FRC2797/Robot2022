@@ -40,9 +40,13 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance() {
-    return (Constants.heightDifference) /
+    if (!getHasTarget()) {
+      return -99;
+    } else {
+      return (Constants.heightDifference) /
         tan(toRadians(Constants.mountingAngle +
             verticalOffset.getDouble(-99)));
+    }
   }
 
   public double getHorizontalOffset() {
