@@ -310,7 +310,7 @@ public class RobotContainer {
     // Driving
     teleopDriving = new RunCommand(() -> {
       if (!isClimber.get()) {
-        teleopDrivingFullSpeed();
+        teleopDrivingRegular();
       } else {
         teleopDrivingClimber();
       }
@@ -326,16 +326,36 @@ public class RobotContainer {
     return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
-  private void teleopDrivingFullSpeed() {
+  private void teleopDrivingRegular() {
     /*
      * The left y is inverted not because the drive method has negative be forward
      * but because the controller returns a negative value
      * forward for left y
      */
-    drivetrain.drive(
-        inputFilter(-xboxController.getLeftY()),
-        inputFilter(xboxController.getLeftX()),
-        inputFilter(xboxController.getRightX()));
+    double forward = 0;
+    double sideways = 0; 
+    double rotation = 0;
+    forward = inputFilter(-xboxController.getLeftY()); 
+    rotation = inputFilter(xboxController.getRightX());
+    
+    if (dpadUp.get()) {
+      forward += 1; 
+    }
+
+    if (dpadDown.get()) {
+      forward += -1;
+    }
+    
+    
+    if (dpadLeft.get()) {
+      sideways += -0.8;
+    }
+
+    if (dpadRight.get()) {
+      sideways += 0.8;
+    }
+
+    drivetrain.drive(forward, sideways, rotation);
   }
 
   private void teleopDrivingClimber() {
