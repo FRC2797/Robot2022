@@ -286,8 +286,7 @@ public class RobotContainer {
     // use the right bumper to fire off what ever balls
     // they have. The user then manually ends aimRevThenWait again
     rTrig.and(isSemiAuto).toggleWhenActive(aimRevThenWaitWithCondition);
-    rBump.and(isSemiAuto).toggleWhenActive(new IndexRevolve(Constants.indexFromIntakeRevolutions, index).andThen(
-        xboxControllerStartEndRumbleCommand(RumbleType.kLeftRumble, 0.5, 0.1, "index from intake done rumble")));
+    rBump.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(indexInOnOff());
 
     // Manual
     lTrig.and(isManual).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
@@ -321,7 +320,7 @@ public class RobotContainer {
     // testing
     SmartDashboard.putNumber("distance eij", 0);
   
-    yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)), shooter));
+    // yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)), shooter));
   }
 
   private double inputFilter(double input) {
