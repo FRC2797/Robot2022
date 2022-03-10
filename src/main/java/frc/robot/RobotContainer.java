@@ -329,12 +329,7 @@ public class RobotContainer {
     return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
-  public void displayControllerSticks() {
-    SmartDashboard.putNumber("Left X", xboxController.getLeftX());
-    SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
-    SmartDashboard.putNumber("Right X", xboxController.getRightX());
-    SmartDashboard.putNumber("Right Y", xboxController.getRightY());
-  }
+ 
 
   public void teleopDrivingFullSpeed() {
     /*
@@ -423,5 +418,12 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Has Target", limelight.getHasTarget());
     SmartDashboard.putNumber("LL Distance", limelight.getDistance());
     SmartDashboard.putNumber("getHorizontalOffset()", limelight.getHorizontalOffset());
+  }
+
+  public void displayControllerSticks() {
+    SmartDashboard.putNumber("Left X", xboxController.getLeftX());
+    SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
+    SmartDashboard.putNumber("Right X", xboxController.getRightX());
+    SmartDashboard.putNumber("Right Y", xboxController.getRightY());
   }
 }

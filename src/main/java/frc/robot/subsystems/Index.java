@@ -24,7 +24,6 @@ public class Index extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("index output rotations", getOutputRotations());
   }
 
   @Override

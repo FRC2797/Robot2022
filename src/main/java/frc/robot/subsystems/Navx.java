@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Navx extends SubsystemBase {
@@ -17,16 +16,6 @@ public class Navx extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        SmartDashboard.putNumber("Angle", ahrs.getAngle());
-        SmartDashboard.putNumber("Displacement X", ahrs.getDisplacementX());
-        SmartDashboard.putNumber("Displacement Y", ahrs.getDisplacementY());
-        SmartDashboard.putNumber("Displacement Z", ahrs.getDisplacementZ());
-        SmartDashboard.putNumber("Roll", ahrs.getRoll());
-        SmartDashboard.putNumber("Pitch", ahrs.getPitch());
-        SmartDashboard.putNumber("Yaw", ahrs.getYaw());
-        SmartDashboard.putNumber("Distance in meters", getDistance());
-        SmartDashboard.putBoolean("Is Calibrating", ahrs.isCalibrating());
     }
 
     @Override

@@ -30,14 +30,11 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("left Motor RPM", getLeftRPM()); 
-    SmartDashboard.putNumber("right motor RPM", getRightRPM());
     
   }
 
   @Override
   public void simulationPeriodic() {
-    SmartDashboard.putNumber("Sim Shooter Values", flyWheelMotors.get()); 
   }
 
  public void setSpeed(double speed) {
