@@ -45,7 +45,7 @@ public class RobotContainer {
   final private Navx navx = new Navx();
   final private Climber climber = new Climber();
 
-  public enum Scheme {
+  private enum Scheme {
     manual(1),
     semiAuto(2),
     climber(3);
@@ -58,17 +58,6 @@ public class RobotContainer {
 
     public String toString() {
       return name();
-    }
-
-    public static String stringFromValue(int value) {
-      if (value == Scheme.manual.value) {
-        return "manual";
-      } else if (value == Scheme.semiAuto.value) {
-        return "semiAuto";
-      } else if (value == Scheme.climber.value) {
-        return "climber";
-      }
-      return "invalid value";
     }
   }
 
@@ -330,13 +319,13 @@ public class RobotContainer {
     yButt.whenPressed(new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController));
   }
 
-  public double inputFilter(double input) {
+  private double inputFilter(double input) {
     return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
  
 
-  public void teleopDrivingFullSpeed() {
+  private void teleopDrivingFullSpeed() {
     /*
      * The left y is inverted not because the drive method has negative be forward
      * but because the controller returns a negative value
@@ -348,7 +337,7 @@ public class RobotContainer {
         inputFilter(xboxController.getRightX()));
   }
 
-  public void teleopDrivingClimber() {
+  private void teleopDrivingClimber() {
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
@@ -374,29 +363,29 @@ public class RobotContainer {
   }
 
   // added to a separate method so it can be reused in multiple places
-  public Command intakeInOnOff() {
+  private Command intakeInOnOff() {
     return new StartEndCommand(intake::onIn, intake::off, intake).withName("intakeInOnOff");
   }
 
-  public Command intakeOutOnOff() {
+  private Command intakeOutOnOff() {
     return new StartEndCommand(intake::onOut, intake::off, intake).withName("intakeOutOnOff");
   }
 
-  public Command indexInOnOff() {
+  private Command indexInOnOff() {
     return new StartEndCommand(index::onIn, index::off, index).withName("indexInOnOff");
   }
 
-  public Command indexOutOnOff() {
+  private Command indexOutOnOff() {
     return new StartEndCommand(index::onOut, index::off, index).withName("indexOutOnOff");
   }
 
-  public Command xboxControllerStartEndRumbleCommand(RumbleType rType, double intensity, double waitInSeconds,
+  private Command xboxControllerStartEndRumbleCommand(RumbleType rType, double intensity, double waitInSeconds,
       String name) {
     return new StartEndCommand(() -> xboxController.setRumble(rType, intensity),
         () -> xboxController.setRumble(rType, 0)).withTimeout(waitInSeconds).withName("xboxControllerRumble");
   }
 
-  public Command getAutonomousCommand(double distanceInInches) {
+  private Command getAutonomousCommand(double distanceInInches) {
     //we start with oneball ready to index into the shooter
     //FIXME: its going to turn -99 if getHorizontaloffset can't get a valid value, can be ignored for now I guess
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
@@ -430,7 +419,7 @@ public class RobotContainer {
     chooserTab.add(chooser);
   }
 
-  public void displayControllerSticks() {
+  private void displayControllerSticks() {
     SmartDashboard.putNumber("Left X", xboxController.getLeftX());
     SmartDashboard.putNumber("Left Y", xboxController.getLeftY());
     SmartDashboard.putNumber("Right X", xboxController.getRightX());
