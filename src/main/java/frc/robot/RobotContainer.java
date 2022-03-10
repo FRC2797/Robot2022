@@ -27,7 +27,7 @@ import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
 import frc.robot.commands.WaitUntilPeakShooterRPM;
-import frc.robot.commands.shooterRevLimelightDistance;
+import frc.robot.commands.ShooterRevLimelightDistance;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -247,7 +247,7 @@ public class RobotContainer {
 
     aimRevThenWait = new SequentialCommandGroup(
         new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
-        new ParallelRaceGroup(new shooterRevLimelightDistance(shooter, limelight),
+        new ParallelRaceGroup(new ShooterRevLimelightDistance(shooter, limelight),
             new WaitUntilPeakShooterRPM(shooter)
                 .andThen(xboxControllerStartEndRumbleCommand(RumbleType.kRightRumble, 0.1, 9999, "Waiting for index"))))
                     .withName("aimRevThenWait");
@@ -392,7 +392,7 @@ public class RobotContainer {
         new DriveDistance(distanceInInches, drivetrain),
         new DriveRotation(180, drivetrain, navx, xboxController),
         new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
-        new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
+        new ParallelCommandGroup(new ShooterRevLimelightDistance(shooter, limelight),
             new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
                 new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
                 new WaitUntilPeakShooterRPM(shooter),
@@ -407,6 +407,7 @@ public class RobotContainer {
   ShuffleboardTab chooserTab = Shuffleboard.getTab("chooserTab");
 
   private void putSmartDashboardValues() {
+    ShooterRevLimelightDistance.setUpShuffleboardShooterSlopeValue();
     driverTab.addBoolean("Manual", isManual::get);
     driverTab.addBoolean("Semi Auto", isSemiAuto::get);
     driverTab.addBoolean("Climber", isClimber::get);
