@@ -205,9 +205,9 @@ public class RobotContainer {
 
     //Sendable chooser for autonomous
     chooser = new SendableChooser<>();
-    chooser.setDefaultOption("Get data from colin1", getAutonomousCommand(0));
-    chooser.addOption("Get data from colin2", getAutonomousCommand(0));
-    chooser.addOption("Get data from colin3", getAutonomousCommand(0));
+    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub", getAutonomousCommand(57 + 5));
+    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub", getAutonomousCommand(73 + 5));
+    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub", getAutonomousCommand(66 + 5));
     SmartDashboard.putData(chooser);
     //
 
@@ -401,7 +401,7 @@ public class RobotContainer {
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
           new DriveDistance(distanceInInches, drivetrain),
           new DriveRotation(180, drivetrain, navx, xboxController),
-          new DriveRotation(limelight.getHorizontalOffset(), drivetrain, navx, xboxController),
+          new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
           new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
               new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
                   new IndexRevolve(Constants.indexFromIntakeRevolutions, index),

@@ -39,8 +39,6 @@ tuning
     limelight (angle (getting it and deciding it))
 
     last things to do:
-    Driverotation(limelight.getHorizontalOffset())
-    - Camera
     - Switch between auto schemes
     - actually shooting balls
     - making final game shuffle board
