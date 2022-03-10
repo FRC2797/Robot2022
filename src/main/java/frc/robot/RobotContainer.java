@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveDistance;
@@ -225,24 +226,36 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff).withName("climberRearDown");
 
-    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff)
+    SubsystemBase frontRight = new SubsystemBase() {
+    };
+
+    SubsystemBase frontLeft = new SubsystemBase() {
+    };
+
+    SubsystemBase rearRight = new SubsystemBase() {
+    };
+
+    SubsystemBase rearLeft = new SubsystemBase() {
+    };
+
+    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, frontRight)
         .withName("climberFrontRightUp");
-    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff)
+    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff, frontRight)
         .withName("climberFrontRightDown");
 
-    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff)
+    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, frontLeft)
         .withName("climberFrontLeftUp");
-    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff)
+    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff, frontLeft)
         .withName("climberFrontLeftDown");
 
-    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff)
+    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, rearRight)
         .withName("climberRearRightUp");
-    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff)
+    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, rearRight)
         .withName("climberRearRightDown");
 
-    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff)
+    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, rearLeft)
         .withName("climberRearLeftUp");
-    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff)
+    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, rearLeft)
         .withName("climberRearLeftDown");
 
     aimRevThenWait = new SequentialCommandGroup(
@@ -275,7 +288,6 @@ public class RobotContainer {
       currentScheme = Scheme.climber.value;
     });
 
-
     /*** Controls ***/
     // Semi-autonomous
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
@@ -302,10 +314,10 @@ public class RobotContainer {
     rightStickUp.and(isClimber).whileActiveOnce(climberRearRightUp);
     rightStickDown.and(isClimber).whileActiveOnce(climberRearRightDown);
 
-    lBump.and(isClimber).whileActiveOnce(climberFrontLeftUp);
-    lTrig.and(isClimber).whileActiveOnce(climberFrontLeftDown);
-    rBump.and(isClimber).whileActiveOnce(climberFrontRightUp);
-    rTrig.and(isClimber).whileActiveOnce(climberFrontRightDown);
+    lBump.and(isClimber).and(lTrig.negate()).whileActiveOnce(climberFrontLeftUp);
+    lTrig.and(isClimber).and(lBump.negate()).whileActiveOnce(climberFrontLeftDown);
+    rBump.and(isClimber).and(rTrig.negate()).whileActiveOnce(climberFrontRightUp);
+    rTrig.and(isClimber).and(rBump.negate()).whileActiveOnce(climberFrontRightDown);
 
     // Driving
     teleopDriving = new RunCommand(() -> {
