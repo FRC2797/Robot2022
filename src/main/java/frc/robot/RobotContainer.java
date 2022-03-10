@@ -189,21 +189,22 @@ public class RobotContainer {
   //
 
   public RobotContainer() {
-    //Sendable chooser for autonomous
+    // Sendable chooser for autonomous
     chooser = new SendableChooser<>();
-    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub", getAutonomousCommand(57 + 5));
-    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub", getAutonomousCommand(73 + 5));
-    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub", getAutonomousCommand(66 + 5));
+    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub",
+        getAutonomousCommand(57 + 5));
+    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub",
+        getAutonomousCommand(73 + 5));
+    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub",
+        getAutonomousCommand(66 + 5));
     //
-    
+
     putSmartDashboardValues();
     // Encoder resetting
     drivetrain.resetEncoders();
     index.resetEncoder();
     navx.reset();
     //
-
-    
 
     // Command Initilizations
     drivetrainTest = new DrivetrainTest(drivetrain).withName("drivetrainTest");
@@ -215,9 +216,9 @@ public class RobotContainer {
       return false;
     }, shooter).withName("shooterAnalog");
 
-
-    //They don't have climber as a requirement so multiple of them can run at the same time
-    //yes, this is a terrible way of doing it
+    // They don't have climber as a requirement so multiple of them can run at the
+    // same time
+    // yes, this is a terrible way of doing it
     climberFrontUp = new StartEndCommand(climber::setFrontUp, climber::frontOff).withName("climberFrontUp");
     climberFrontDown = new StartEndCommand(climber::setFrontDown, climber::frontOff)
         .withName("climberFrontDown");
@@ -323,8 +324,6 @@ public class RobotContainer {
     return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
- 
-
   private void teleopDrivingFullSpeed() {
     /*
      * The left y is inverted not because the drive method has negative be forward
@@ -386,26 +385,27 @@ public class RobotContainer {
   }
 
   private Command getAutonomousCommand(double distanceInInches) {
-    //we start with oneball ready to index into the shooter
-    //FIXME: its going to turn -99 if getHorizontaloffset can't get a valid value, can be ignored for now I guess
+    // we start with oneball ready to index into the shooter
+    // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid value,
+    // can be ignored for now I guess
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
-          new DriveDistance(distanceInInches, drivetrain),
-          new DriveRotation(180, drivetrain, navx, xboxController),
-          new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
-          new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
-              new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
-                  new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
-                  new WaitUntilPeakShooterRPM(shooter),
-                  new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+        new DriveDistance(distanceInInches, drivetrain),
+        new DriveRotation(180, drivetrain, navx, xboxController),
+        new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
+        new ParallelCommandGroup(new shooterRevLimelightDistance(shooter, limelight),
+            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
+                new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
+                new WaitUntilPeakShooterRPM(shooter),
+                new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
   }
 
   public Command getAutonomousCommand() {
     return chooser.getSelected();
   }
 
-
   ShuffleboardTab driverTab = Shuffleboard.getTab("driver");
   ShuffleboardTab chooserTab = Shuffleboard.getTab("chooserTab");
+
   private void putSmartDashboardValues() {
     driverTab.addBoolean("Manual", isManual::get);
     driverTab.addBoolean("Semi Auto", isSemiAuto::get);
@@ -415,8 +415,24 @@ public class RobotContainer {
 
     driverTab.addBoolean("Has Target", limelight::getHasTarget);
     driverTab.addNumber("Horizontal Offset", limelight::getHorizontalOffset);
-
+    driverTab.addString("Controls", this::getControls);
     chooserTab.add(chooser);
+  }
+
+  private String getControls() {
+    if (isManual.get()) {
+      return "Left trigger: Intake\n Left trigger + b: inverse intake\n Right bumper: index into shooter\nRight bumper + b: index into intake\nRight trigger: analog shooter";
+    }
+
+    if (isSemiAuto.get()) {
+      return "Left trigger: intake\nLeft trigger + b: outake all (using index and intake))\nRight trigger: aim, rev and wait. Press again to stop\nRight bumper: prime ball. Press again to stop";
+    }
+
+    if (isClimber.get()) {
+      return "Left stick: back left\nRight stick: back right\nLeft trigger/bumper: Front left\nRight trigger/bumper: Front right\nDPAD: Slow move";
+    }
+
+    return "ERROR, get Joel";
   }
 
   private void displayControllerSticks() {

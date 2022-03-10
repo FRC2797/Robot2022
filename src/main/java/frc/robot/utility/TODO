@@ -46,3 +46,10 @@ tuning
         - aimRevThenWait
 
 
+Aim rev distance on r trig need testing
+ll angle constants
+tune limlight vision
+tune driv rotation and drive distance
+test auto
+String getControls method
+get that offset on
