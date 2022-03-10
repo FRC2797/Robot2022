@@ -398,6 +398,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand(double distanceInInches) {
     //we start with oneball ready to index into the shooter
+    //FIXME: its going to turn -99 if getHorizontaloffset can't get a valid value, can be ignored for now I guess
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
           new DriveDistance(distanceInInches, drivetrain),
           new DriveRotation(180, drivetrain, navx, xboxController),
