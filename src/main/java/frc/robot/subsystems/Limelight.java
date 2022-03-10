@@ -24,6 +24,7 @@ public class Limelight extends SubsystemBase {
   private double smartDashboardMountingAngle;
 
   public Limelight() {
+    setPipeline(7);
   }
 
   @Override
