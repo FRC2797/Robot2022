@@ -31,7 +31,7 @@ public class ShooterRevLimelightDistance extends CommandBase {
     //public void end;
 
     public double percFromDist(double distanceInInches) {
-       return (distanceInInches / shooterSlope.getDouble(0));
+       return ( (distanceInInches / shooterSlope.getDouble(0))/100  );
     }
 
     @Override
