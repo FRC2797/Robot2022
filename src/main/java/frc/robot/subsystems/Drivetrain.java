@@ -16,6 +16,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -58,6 +59,10 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("frontleft", frontLeftEnc.getVelocity());
+    SmartDashboard.putNumber("frontright", frontRightEnc.getVelocity());
+    SmartDashboard.putNumber("rearleft", rearLeftEnc.getVelocity());
+    SmartDashboard.putNumber("rearright", rearRightEnc.getVelocity());
   }
 
   @Override
