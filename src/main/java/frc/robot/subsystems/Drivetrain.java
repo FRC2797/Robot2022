@@ -70,7 +70,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void drive(double forwardSpeed, double sidewaysSpeed, double rotation) {
-    System.out.println("F: " + forwardSpeed + " S: " + sidewaysSpeed + "R: " + rotation + " " + timer.get());
     mecanumDrive.driveCartesian(forwardSpeed, sidewaysSpeed, rotation);
   }
 

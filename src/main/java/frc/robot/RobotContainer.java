@@ -319,7 +319,9 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    yButt.whenPressed(new ShooterRevLimelightDistance(shooter, limelight));
+    SmartDashboard.putNumber("distance eij", 0);
+  
+    yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)), shooter));
   }
 
   private double inputFilter(double input) {
@@ -426,6 +428,7 @@ public class RobotContainer {
   }
 
   ShuffleboardTab driverTab = Shuffleboard.getTab("driver");
+  ShuffleboardTab testTab = Shuffleboard.getTab("test");
   ShuffleboardTab chooserTab = Shuffleboard.getTab("chooserTab");
 
   private void putSmartDashboardValues() {
@@ -438,7 +441,10 @@ public class RobotContainer {
 
     driverTab.addBoolean("Has Target", limelight::getHasTarget);
     driverTab.addNumber("Horizontal Offset", limelight::getHorizontalOffset);
-    driverTab.addNumber("Average shooter RPM", shooter::getAverageRPM); 
+    driverTab.addNumber("Average shooter RPM", shooter::getAverageRPM);
+
+    testTab.addNumber("Left RPM", shooter::getLeftRPM);
+    testTab.addNumber("Right RPM", shooter::getRightRPM);
 
     SmartDashboard.putNumber("lime mounting angle", Constants.mountingAngle);
     chooserTab.add(chooser);
