@@ -259,7 +259,7 @@ public class RobotContainer {
 
     aimRevThenWaitWithCondition = new ConditionalCommand(aimRevThenWait,
         xboxControllerStartEndRumbleCommand(RumbleType.kRightRumble, 0.2, 0.1, "Error Rumble aimRevThenWait"),
-        () -> (!navx.isConnected()) && (!limelight.getHasTarget()))
+        () -> (navx.isConnected()) && (limelight.getHasTarget()))
             .withName("aimShootThenIndexWithCondition");
     //
 
