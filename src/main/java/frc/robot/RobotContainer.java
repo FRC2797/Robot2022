@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveDistance;
@@ -226,36 +225,24 @@ public class RobotContainer {
     climberRearUp = new StartEndCommand(climber::setRearUp, climber::rearOff).withName("climberRearUp");
     climberRearDown = new StartEndCommand(climber::setRearDown, climber::rearOff).withName("climberRearDown");
 
-    SubsystemBase frontRight = new SubsystemBase() {
-    };
-
-    SubsystemBase frontLeft = new SubsystemBase() {
-    };
-
-    SubsystemBase rearRight = new SubsystemBase() {
-    };
-
-    SubsystemBase rearLeft = new SubsystemBase() {
-    };
-
-    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff, frontRight)
+    climberFrontRightUp = new StartEndCommand(climber::setFrontRightUp, climber::frontRightOff)
         .withName("climberFrontRightUp");
-    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff, frontRight)
+    climberFrontRightDown = new StartEndCommand(climber::setFrontRightDown, climber::frontRightOff)
         .withName("climberFrontRightDown");
 
-    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff, frontLeft)
+    climberFrontLeftUp = new StartEndCommand(climber::setFrontLeftUp, climber::frontLeftOff)
         .withName("climberFrontLeftUp");
-    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff, frontLeft)
+    climberFrontLeftDown = new StartEndCommand(climber::setFrontLeftDown, climber::frontLeftOff)
         .withName("climberFrontLeftDown");
 
-    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff, rearRight)
+    climberRearRightUp = new StartEndCommand(climber::setRearRightUp, climber::rearRightOff)
         .withName("climberRearRightUp");
-    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff, rearRight)
+    climberRearRightDown = new StartEndCommand(climber::setRearRightDown, climber::rearRightOff)
         .withName("climberRearRightDown");
 
-    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff, rearLeft)
+    climberRearLeftUp = new StartEndCommand(climber::setRearLeftUp, climber::rearLeftOff)
         .withName("climberRearLeftUp");
-    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff, rearLeft)
+    climberRearLeftDown = new StartEndCommand(climber::setRearLeftDown, climber::rearLeftOff)
         .withName("climberRearLeftDown");
 
     aimRevThenWait = new SequentialCommandGroup(
@@ -287,6 +274,7 @@ public class RobotContainer {
       CommandScheduler.getInstance().cancelAll();
       currentScheme = Scheme.climber.value;
     });
+
 
     /*** Controls ***/
     // Semi-autonomous
