@@ -4,14 +4,19 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.Motors.Drivetrain.FrontLeft;
+import static frc.robot.Constants.Motors.Drivetrain.FrontRight;
+import static frc.robot.Constants.Motors.Drivetrain.RearLeft;
+import static frc.robot.Constants.Motors.Drivetrain.RearRight;
+
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import static frc.robot.Constants.Motors.Drivetrain.*;
 import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
@@ -26,9 +31,12 @@ public class Drivetrain extends SubsystemBase {
   final private RelativeEncoder rearLeftEnc = rearLeft.getEncoder();
   final private RelativeEncoder rearRightEnc = rearRight.getEncoder();
 
+  Timer timer = new Timer();
+
   final private MecanumDrive mecanumDrive;
 
   public Drivetrain() {
+    timer.start();
     rearRight.setInverted(true);
     frontRight.setInverted(true);
 
@@ -57,6 +65,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void drive(double forwardSpeed, double sidewaysSpeed, double rotation) {
+    System.out.println("F: " + forwardSpeed + " S: " + sidewaysSpeed + "R: " + rotation + " " + timer.get());
     mecanumDrive.driveCartesian(forwardSpeed, sidewaysSpeed, rotation);
   }
 
