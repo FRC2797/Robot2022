@@ -314,10 +314,10 @@ public class RobotContainer {
     rightStickUp.and(isClimber).whileActiveOnce(climberRearRightUp);
     rightStickDown.and(isClimber).whileActiveOnce(climberRearRightDown);
 
-    lBump.and(isClimber).whileActiveOnce(climberFrontLeftUp);
-    lTrig.and(isClimber).whileActiveOnce(climberFrontLeftDown);
-    rBump.and(isClimber).whileActiveOnce(climberFrontRightUp);
-    rTrig.and(isClimber).whileActiveOnce(climberFrontRightDown);
+    lBump.and(isClimber).and(lTrig.negate()).whileActiveOnce(climberFrontLeftUp);
+    lTrig.and(isClimber).and(lBump.negate()).whileActiveOnce(climberFrontLeftDown);
+    rBump.and(isClimber).and(rTrig.negate()).whileActiveOnce(climberFrontRightUp);
+    rTrig.and(isClimber).and(rBump.negate()).whileActiveOnce(climberFrontRightDown);
 
     // Driving
     teleopDriving = new RunCommand(() -> {
