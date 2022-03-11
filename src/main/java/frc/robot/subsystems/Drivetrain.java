@@ -39,6 +39,12 @@ public class Drivetrain extends SubsystemBase {
     rearRight.setInverted(true);
     frontRight.setInverted(true);
 
+    frontLeft.setOpenLoopRampRate(0.1);
+    frontRight.setOpenLoopRampRate(0.1);
+    rearLeft.setOpenLoopRampRate(0.1);
+    rearRight.setOpenLoopRampRate(0.1);
+
+
     mecanumDrive = new MecanumDrive(
         frontLeft,
         rearLeft,
