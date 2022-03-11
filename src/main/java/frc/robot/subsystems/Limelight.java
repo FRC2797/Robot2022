@@ -24,7 +24,7 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry hasTarget = table.getEntry("tv");
 
   public Limelight() {
-    setPipeline(7);
+    setPipeline(5);
   }
 
   @Override

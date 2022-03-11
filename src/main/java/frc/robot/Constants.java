@@ -58,7 +58,7 @@ public final class Constants {
     public static final double autoDriveDistance = 0;
 
     // Climber
-    public static final double climberSpeed = 0.2;
+    public static final double climberSpeed = 0.37;
 
     // Limelight constants
     // All in inches
