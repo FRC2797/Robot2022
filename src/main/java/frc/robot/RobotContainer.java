@@ -191,11 +191,11 @@ public class RobotContainer {
   public RobotContainer() {
     // Sendable chooser for autonomous
     chooser = new SendableChooser<>();
-    chooser.setDefaultOption("In line with Ball closest to Hangar with robot's front facing Center Hub",
+    chooser.setDefaultOption("62",
         getAutonomousCommand(57 + 5));
-    chooser.addOption("In line with Ball closest to Loading Terminal with the robot's front facing Center Hub",
+    chooser.addOption("78",
         getAutonomousCommand(73 + 5));
-    chooser.addOption("In line with Ball closest to Side Wall with the robot's front facing Center Hub",
+    chooser.addOption("71",
         getAutonomousCommand(66 + 5));
     //
 
@@ -275,7 +275,6 @@ public class RobotContainer {
       currentScheme = Scheme.climber.value;
     });
 
-
     /*** Controls ***/
     // Semi-autonomous
     lTrig.and(isSemiAuto).and(bButt.negate()).whileActiveOnce(intakeInOnOff());
@@ -319,8 +318,9 @@ public class RobotContainer {
 
     // testing
     SmartDashboard.putNumber("distance eij", 0);
-  
-    // yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)), shooter));
+
+    // yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)),
+    // shooter));
   }
 
   private double inputFilter(double input) {
@@ -339,20 +339,19 @@ public class RobotContainer {
      * forward for left y
      */
     double forward = 0;
-    double sideways = 0; 
+    double sideways = 0;
     double rotation = 0;
-    forward = inputFilter(-xboxController.getLeftY()); 
+    forward = inputFilter(-xboxController.getLeftY());
     rotation = inputFilter(xboxController.getRightX());
-    
+
     if (dpadUp.get()) {
-      forward += 1; 
+      forward += 1;
     }
 
     if (dpadDown.get()) {
       forward += -1;
     }
-    
-    
+
     if (dpadLeft.get()) {
       sideways += -0.8;
     }
@@ -413,18 +412,30 @@ public class RobotContainer {
   }
 
   private Command getAutonomousCommand(double distanceInInches) {
-    // we start with oneball ready to index into the shooter
-    // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid value,
-    // can be ignored for now I guess
+
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
         new DriveDistance(distanceInInches, drivetrain),
         new DriveRotation(180, drivetrain, navx, xboxController),
-        new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
-        new ParallelCommandGroup(new ShooterRevLimelightDistance(shooter, limelight),
+        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter),
             new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
                 new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
                 new WaitUntilPeakShooterRPM(shooter),
                 new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+
+    // // we start with oneball ready to index into the shooter
+    // // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid
+    // value,
+    // // can be ignored for now I guess
+    // return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
+    // new DriveDistance(distanceInInches, drivetrain),
+    // new DriveRotation(180, drivetrain, navx, xboxController),
+    // new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx,
+    // xboxController),
+    // new ParallelCommandGroup(new ShooterRevLimelightDistance(shooter, limelight),
+    // new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
+    // new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
+    // new WaitUntilPeakShooterRPM(shooter),
+    // new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
   }
 
   public Command getAutonomousCommand() {
