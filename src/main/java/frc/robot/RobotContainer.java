@@ -115,6 +115,20 @@ public class RobotContainer {
     };
   };
 
+  final private Trigger leftStickRight = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftX() >= Constants.drivingDeadzone;
+    };
+  };
+
+  final private Trigger leftStickLeft = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftX() <= -Constants.drivingDeadzone;
+    };
+  };
+
+
+
   final private Trigger rightStickUp = new Trigger() {
     public boolean get() {
       return xboxController.getRightY() <= -Constants.drivingDeadzone;
@@ -295,15 +309,11 @@ public class RobotContainer {
     rTrig.and(isManual).whileActiveContinuous(shooterAnalog);
 
     // Climbing
-    leftStickUp.and(isClimber).whileActiveOnce(climberRearLeftUp);
-    leftStickDown.and(isClimber).whileActiveOnce(climberRearLeftDown);
-    rightStickUp.and(isClimber).whileActiveOnce(climberRearRightUp);
-    rightStickDown.and(isClimber).whileActiveOnce(climberRearRightDown);
+    dpadUp.and(isClimber).whileActiveOnce(climberFrontUp);
+    dpadDown.and(isClimber).whileActiveOnce(climberFrontDown);
+    dpadRight.and(isClimber).whileActiveOnce(climberRearUp);
+    dpadLeft.and(isClimber).whileActiveOnce(climberRearDown);
 
-    lBump.and(isClimber).and(lTrig.negate()).whileActiveOnce(climberFrontLeftUp);
-    lTrig.and(isClimber).and(lBump.negate()).whileActiveOnce(climberFrontLeftDown);
-    rBump.and(isClimber).and(rTrig.negate()).whileActiveOnce(climberFrontRightUp);
-    rTrig.and(isClimber).and(rBump.negate()).whileActiveOnce(climberFrontRightDown);
 
     // Driving
     teleopDriving = new RunCommand(() -> {
@@ -363,26 +373,34 @@ public class RobotContainer {
     drivetrain.drive(forward, sideways, rotation);
   }
 
+
+  //TODO: make this a method with the above
   private void teleopDrivingClimber() {
+    /*
+     * The left y is inverted not because the drive method has negative be forward
+     * but because the controller returns a negative value
+     * forward for left y
+     */
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
-    final double SLOW_SPEED = 0.15;
+    forward = inputFilter(-xboxController.getLeftY());
+    rotation = inputFilter(xboxController.getRightX());
 
-    if (dpadUp.get()) {
-      forward += SLOW_SPEED;
+    if (leftStickUp.get()) {
+      forward += 0.15;
     }
 
-    if (dpadDown.get()) {
-      forward -= SLOW_SPEED;
+    if (leftStickDown.get()) {
+      forward += -0.15;
     }
 
-    if (dpadRight.get()) {
-      sideways += SLOW_SPEED;
+    if (leftStickLeft.get()) {
+      sideways += -0.15;
     }
 
-    if (dpadLeft.get()) {
-      sideways -= SLOW_SPEED;
+    if (leftStickRight.get()) {
+      sideways += 0.15;
     }
 
     drivetrain.drive(forward, sideways, rotation);
@@ -460,6 +478,8 @@ public class RobotContainer {
 
     testTab.addNumber("Left RPM", shooter::getLeftRPM);
     testTab.addNumber("Right RPM", shooter::getRightRPM);
+    testTab.addBoolean("Left stick right", leftStickRight::get);
+    testTab.addBoolean("Left stick left", leftStickLeft::get);
 
     SmartDashboard.putNumber("lime mounting angle", Constants.mountingAngle);
     chooserTab.add(chooser);
