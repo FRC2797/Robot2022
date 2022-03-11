@@ -32,12 +32,10 @@ public class Drivetrain extends SubsystemBase {
   final private RelativeEncoder rearLeftEnc = rearLeft.getEncoder();
   final private RelativeEncoder rearRightEnc = rearRight.getEncoder();
 
-  Timer timer = new Timer();
 
   final private MecanumDrive mecanumDrive;
 
   public Drivetrain() {
-    timer.start();
     rearRight.setInverted(true);
     frontRight.setInverted(true);
 
