@@ -327,6 +327,11 @@ public class RobotContainer {
     return input <= Constants.drivingDeadzone && input >= -Constants.drivingDeadzone ? 0 : input;
   }
 
+  private double lerp(double start, double end, double percent) {
+    double amt = (end - start) * percent;
+    return start + amt;
+  }
+
   private void teleopDrivingRegular() {
     /*
      * The left y is inverted not because the drive method has negative be forward
@@ -363,7 +368,7 @@ public class RobotContainer {
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
-    final double SLOW_SPEED = 0.2;
+    final double SLOW_SPEED = 0.1;
 
     if (dpadUp.get()) {
       forward += SLOW_SPEED;
