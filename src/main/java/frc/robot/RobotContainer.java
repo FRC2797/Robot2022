@@ -367,7 +367,7 @@ public class RobotContainer {
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
-    final double SLOW_SPEED = 0.1;
+    final double SLOW_SPEED = 0.15;
 
     if (dpadUp.get()) {
       forward += SLOW_SPEED;

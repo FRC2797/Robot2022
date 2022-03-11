@@ -52,3 +52,10 @@ tune limlight vision
 tune driv rotation and drive distance
 test auto
 String getControls method
+
+
+
+
+//climber groups on dpad
+  //left stick is slow front
+  //right stick is slow back
