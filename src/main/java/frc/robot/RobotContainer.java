@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -384,23 +385,21 @@ public class RobotContainer {
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
-    forward = inputFilter(-xboxController.getLeftY());
-    rotation = inputFilter(xboxController.getRightX());
 
     if (leftStickUp.get()) {
-      forward += 0.15;
+      forward += 0.05;
     }
 
     if (leftStickDown.get()) {
-      forward += -0.15;
+      forward += -0.05;
     }
 
     if (leftStickLeft.get()) {
-      sideways += -0.15;
+      sideways += -0.05;
     }
 
     if (leftStickRight.get()) {
-      sideways += 0.15;
+      sideways += 0.05;
     }
 
     drivetrain.drive(forward, sideways, rotation);
@@ -431,14 +430,14 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
-        new DriveDistance(distanceInInches, drivetrain),
-        new DriveRotation(180, drivetrain, navx, xboxController),
-        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter),
-            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
-                new WaitUntilPeakShooterRPM(shooter),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+    return new ParallelCommandGroup(intakeInOnOff().beforeStarting(new PrintCommand("IntakeInOnOff")), new SequentialCommandGroup(
+        new DriveDistance(distanceInInches, drivetrain).beforeStarting(new PrintCommand("driving forward")),
+        new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting(new PrintCommand("Rotating")),
+        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting(new PrintCommand("Setting shooter speed to 50%")),
+            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).beforeStarting(new PrintCommand("Waiting until peak Shooter RPM").andThen(new PrintCommand("peak shooter RPM is done"))),
+                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(1).beforeStarting(new PrintCommand("Index revolving")),
+                new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(new PrintCommand("Waiting until peak Shooter RPM")).andThen(new PrintCommand("peak shooter RPM is done")),
+                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting(new PrintCommand("index revolving"))))));
 
     // // we start with oneball ready to index into the shooter
     // // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid
