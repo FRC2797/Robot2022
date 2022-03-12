@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -18,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -436,14 +434,29 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    return new ParallelCommandGroup(intakeInOnOff().beforeStarting(() -> DriverStation.reportWarning("Intake starting", false)), new SequentialCommandGroup(
-        new DriveDistance(distanceInInches, drivetrain).beforeStarting( () -> DriverStation.reportWarning("driving starting", false)),
-        new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting( () -> DriverStation.reportWarning("Drive rotation starting", false))),
-        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting( () -> DriverStation.reportWarning("shooter speed starting", false)),
-            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).andThen(() -> DriverStation.reportWarning("waiting starting", false))),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(1).beforeStarting(new PrintCommand("Index revolving")),
-                new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(() -> DriverStation.reportWarning("waiting starting", false))),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting( () -> DriverStation.reportWarning("index revolving", false)));
+    
+    return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
+      new DriveDistance(distanceInInches, drivetrain),
+      new DriveRotation(180, drivetrain, navx, xboxController),
+      //We use a lambda here so that the driverotation doesn't just get one value at the beginning of the match
+      new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
+      new ParallelCommandGroup(new ShooterRevLimelightDistance(shooter, limelight),
+          new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
+              new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
+              new WaitUntilPeakShooterRPM(shooter),
+              new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+
+
+
+    //This is currently crashing
+    // return new ParallelCommandGroup(intakeInOnOff().beforeStarting(() -> DriverStation.reportWarning("Intake starting", false)), new SequentialCommandGroup(
+    //     new DriveDistance(distanceInInches, drivetrain).beforeStarting( () -> DriverStation.reportWarning("driving starting", false)),
+    //     new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting( () -> DriverStation.reportWarning("Drive rotation starting", false))),
+    //     new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting( () -> DriverStation.reportWarning("shooter speed starting", false)),
+    //         new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).andThen(() -> DriverStation.reportWarning("waiting starting", false))),
+    //             new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(1).beforeStarting(new PrintCommand("Index revolving")),
+    //             new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(() -> DriverStation.reportWarning("waiting starting", false))),
+    //             new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting( () -> DriverStation.reportWarning("index revolving", false)));
 
     // // we start with oneball ready to index into the shooter
     // // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid
