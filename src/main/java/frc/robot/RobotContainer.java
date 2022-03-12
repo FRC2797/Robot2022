@@ -392,19 +392,19 @@ public class RobotContainer {
     double rotation = 0;
 
     if (leftStickUp.get()) {
-      forward += 0.05;
+      forward += 0.1;
     }
 
     if (leftStickDown.get()) {
-      forward += -0.05;
+      forward += -0.1;
     }
 
     if (leftStickLeft.get()) {
-      sideways += -0.05;
+      sideways += -0.1;
     }
 
     if (leftStickRight.get()) {
-      sideways += 0.05;
+      sideways += 0.1;
     }
 
     drivetrain.drive(forward, sideways, rotation);
