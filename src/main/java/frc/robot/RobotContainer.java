@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -434,7 +435,7 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter);
+    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting(() -> DriverStation.reportError("Revving shooter", false));
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
       new DriveDistance(distanceInInches, drivetrain),
       new DriveRotation(180, drivetrain, navx, xboxController),
@@ -442,9 +443,9 @@ public class RobotContainer {
       new DriveRotation(0, drivetrain, navx, xboxController),
       new ParallelCommandGroup(halfShooterSpeed,
           new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
-              new IndexRevolve(999, index).withTimeout(2),
+              new IndexRevolve(-999, index).withTimeout(2),
               new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
-              new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(2)))));
+              new IndexRevolve(-999, index).withTimeout(2)))));
 
 
 
