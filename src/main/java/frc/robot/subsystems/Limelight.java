@@ -22,6 +22,8 @@ public class Limelight extends SubsystemBase {
   private NetworkTableEntry targetArea = table.getEntry("ta");
   private NetworkTableEntry skew = table.getEntry("ts");
   private NetworkTableEntry hasTarget = table.getEntry("tv");
+  private NetworkTableEntry isSnapshotting = table.getEntry("snapshot");
+
 
   public Limelight() {
     setPipeline(5);
@@ -64,6 +66,14 @@ public class Limelight extends SubsystemBase {
 
   public void setPipeline(int index) {
     table.getEntry("pipeline").setNumber(index);
+  }
+
+  public void takeSnapshot() {
+    isSnapshotting.setNumber(1);
+  }
+
+  public void disableSnapshotting() {
+    isSnapshotting.setNumber(0);
   }
 
 }

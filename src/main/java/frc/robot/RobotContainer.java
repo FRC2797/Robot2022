@@ -15,12 +15,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveDistance;
@@ -177,6 +179,12 @@ public class RobotContainer {
       return xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone ? true : false;
     };
   };
+
+  final private Trigger always = new Trigger() {
+    public boolean get() {
+      return true;
+    };
+  };
   //
 
   // Command declarations
@@ -328,10 +336,8 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    SmartDashboard.putNumber("distance eij", 0);
-
-    // yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)),
-    // shooter));
+    Command constantlyTakeSnapshot = new InstantCommand(() -> limelight.takeSnapshot()).andThen(new WaitCommand(2));
+    always.whileActiveContinuous(constantlyTakeSnapshot);
   }
 
   private double inputFilter(double input) {
