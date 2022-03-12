@@ -434,17 +434,17 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    
+    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter);
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
       new DriveDistance(distanceInInches, drivetrain),
       new DriveRotation(180, drivetrain, navx, xboxController),
       //We use a lambda here so that the driverotation doesn't just get one value at the beginning of the match
-      new DriveRotation(limelight::getHorizontalOffset, drivetrain, navx, xboxController),
-      new ParallelCommandGroup(new ShooterRevLimelightDistance(shooter, limelight),
-          new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
-              new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
-              new WaitUntilPeakShooterRPM(shooter),
-              new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+      new DriveRotation(0, drivetrain, navx, xboxController),
+      new ParallelCommandGroup(halfShooterSpeed,
+          new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
+              new IndexRevolve(999, index).withTimeout(2),
+              new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
+              new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(2)))));
 
 
 
