@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import java.sql.Driver;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
@@ -26,6 +29,7 @@ public class WaitUntilPeakShooterRPM extends CommandBase {
     timer.start();
     timer.reset();
     previousRPM = shooter.getAverageRPM();
+    DriverStation.reportError("Waiting", false);
   }
 
   @Override
@@ -35,7 +39,9 @@ public class WaitUntilPeakShooterRPM extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
+    DriverStation.reportError("Done waiting", false);
   }
+
 
   @Override
   public boolean isFinished() {
