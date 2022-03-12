@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import java.sql.Driver;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -27,8 +30,8 @@ import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
-import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.commands.ShooterRevLimelightDistance;
+import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -430,14 +433,14 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    return new ParallelCommandGroup(intakeInOnOff().beforeStarting(new PrintCommand("IntakeInOnOff")), new SequentialCommandGroup(
-        new DriveDistance(distanceInInches, drivetrain).beforeStarting(new PrintCommand("driving forward")),
-        new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting(new PrintCommand("Rotating")),
-        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting(new PrintCommand("Setting shooter speed to 50%")),
-            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).beforeStarting(new PrintCommand("Waiting until peak Shooter RPM").andThen(new PrintCommand("peak shooter RPM is done"))),
+    return new ParallelCommandGroup(intakeInOnOff().beforeStarting(() -> DriverStation.reportWarning("Intake starting", false)), new SequentialCommandGroup(
+        new DriveDistance(distanceInInches, drivetrain).beforeStarting( () -> DriverStation.reportWarning("driving starting", false)),
+        new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting( () -> DriverStation.reportWarning("Drive rotation starting", false))),
+        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting( () -> DriverStation.reportWarning("shooter speed starting", false)),
+            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).andThen(() -> DriverStation.reportWarning("waiting starting", false))),
                 new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(1).beforeStarting(new PrintCommand("Index revolving")),
-                new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(new PrintCommand("Waiting until peak Shooter RPM")).andThen(new PrintCommand("peak shooter RPM is done")),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting(new PrintCommand("index revolving"))))));
+                new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(() -> DriverStation.reportWarning("waiting starting", false))),
+                new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting( () -> DriverStation.reportWarning("index revolving", false)));
 
     // // we start with oneball ready to index into the shooter
     // // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid
