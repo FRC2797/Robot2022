@@ -335,8 +335,9 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    Command constantlyTakeSnapshot = new InstantCommand(() -> limelight.takeSnapshot()).andThen(new WaitCommand(2));
-    always.whileActiveContinuous(constantlyTakeSnapshot);
+    // Command constantlyTakeSnapshot = new InstantCommand(() -> limelight.takeSnapshot()).withName("Taking a snapshot");/* .andThen(new WaitCommand(2) */
+    // always.whileActiveContinuous(constantlyTakeSnapshot);
+    yButt.whenPressed(() -> limelight.takeSnapshot()); 
   }
 
   private double inputFilter(double input) {
@@ -435,7 +436,7 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
-    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting(() -> DriverStation.reportError("Revving shooter", false));
+    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.4), () -> shooter.setSpeed(0), shooter).beforeStarting(() -> DriverStation.reportError("Revving shooter", false));
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
       new DriveDistance(distanceInInches, drivetrain),
       new DriveRotation(180, drivetrain, navx, xboxController),
@@ -444,7 +445,7 @@ public class RobotContainer {
       new ParallelCommandGroup(halfShooterSpeed,
           new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
               new IndexRevolve(-999, index).withTimeout(2),
-              new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
+              new WaitUntilPeakShooterRPM(shooter).withTimeout(1.5),
               new IndexRevolve(-999, index).withTimeout(2)))));
 
 
