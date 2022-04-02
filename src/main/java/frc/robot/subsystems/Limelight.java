@@ -26,7 +26,7 @@ public class Limelight extends SubsystemBase {
 
 
   public Limelight() {
-    setPipeline(5);
+    setPipeline(7);
   }
 
   @Override
