@@ -160,7 +160,7 @@ bin/
 
 # Simulation GUI and other tools window save file
 *-window.json
+
+# Non-default
 src/main/java/frc/robot/utility/TODO
-src/main/java/frc/robot/utility/TODO
-src/main/java/frc/robot/utility/TODO
-src/main/java/frc/robot/utility/TODO
+.glass

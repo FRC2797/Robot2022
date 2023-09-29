@@ -57,5 +57,6 @@ String getControls method
 
 
 //climber groups on dpad
+    //front is up and down
   //left stick is slow front
   //right stick is slow back

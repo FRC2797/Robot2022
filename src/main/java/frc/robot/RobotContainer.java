@@ -5,9 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -15,19 +15,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveDistance;
 import frc.robot.commands.DriveRotation;
 import frc.robot.commands.DrivetrainTest;
 import frc.robot.commands.IndexRevolve;
-import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.commands.ShooterRevLimelightDistance;
+import frc.robot.commands.WaitUntilPeakShooterRPM;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Index;
@@ -115,6 +117,20 @@ public class RobotContainer {
     };
   };
 
+  final private Trigger leftStickRight = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftX() >= Constants.drivingDeadzone;
+    };
+  };
+
+  final private Trigger leftStickLeft = new Trigger() {
+    public boolean get() {
+      return xboxController.getLeftX() <= -Constants.drivingDeadzone;
+    };
+  };
+
+
+
   final private Trigger rightStickUp = new Trigger() {
     public boolean get() {
       return xboxController.getRightY() <= -Constants.drivingDeadzone;
@@ -160,6 +176,12 @@ public class RobotContainer {
   final private Trigger lTrig = new Trigger() {
     public boolean get() {
       return xboxController.getLeftTriggerAxis() > Constants.triggerDeadzone ? true : false;
+    };
+  };
+
+  final private Trigger always = new Trigger() {
+    public boolean get() {
+      return true;
     };
   };
   //
@@ -295,15 +317,11 @@ public class RobotContainer {
     rTrig.and(isManual).whileActiveContinuous(shooterAnalog);
 
     // Climbing
-    leftStickUp.and(isClimber).whileActiveOnce(climberRearLeftUp);
-    leftStickDown.and(isClimber).whileActiveOnce(climberRearLeftDown);
-    rightStickUp.and(isClimber).whileActiveOnce(climberRearRightUp);
-    rightStickDown.and(isClimber).whileActiveOnce(climberRearRightDown);
+    dpadUp.and(isClimber).whileActiveOnce(climberFrontUp);
+    dpadDown.and(isClimber).whileActiveOnce(climberFrontDown);
+    dpadRight.and(isClimber).whileActiveOnce(climberRearUp);
+    dpadLeft.and(isClimber).whileActiveOnce(climberRearDown);
 
-    lBump.and(isClimber).and(lTrig.negate()).whileActiveOnce(climberFrontLeftUp);
-    lTrig.and(isClimber).and(lBump.negate()).whileActiveOnce(climberFrontLeftDown);
-    rBump.and(isClimber).and(rTrig.negate()).whileActiveOnce(climberFrontRightUp);
-    rTrig.and(isClimber).and(rBump.negate()).whileActiveOnce(climberFrontRightDown);
 
     // Driving
     teleopDriving = new RunCommand(() -> {
@@ -317,10 +335,9 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(teleopDriving);
 
     // testing
-    SmartDashboard.putNumber("distance eij", 0);
-
-    // yButt.whenPressed(new RunCommand(() -> shooter.setSpeed(percFromDist(148)),
-    // shooter));
+    // Command constantlyTakeSnapshot = new InstantCommand(() -> limelight.takeSnapshot()).withName("Taking a snapshot");/* .andThen(new WaitCommand(2) */
+    // always.whileActiveContinuous(constantlyTakeSnapshot);
+    yButt.whenPressed(() -> limelight.takeSnapshot()); 
   }
 
   private double inputFilter(double input) {
@@ -363,26 +380,32 @@ public class RobotContainer {
     drivetrain.drive(forward, sideways, rotation);
   }
 
+
+  //TODO: make this a method with the above
   private void teleopDrivingClimber() {
+    /*
+     * The left y is inverted not because the drive method has negative be forward
+     * but because the controller returns a negative value
+     * forward for left y
+     */
     double forward = 0;
     double sideways = 0;
     double rotation = 0;
-    final double SLOW_SPEED = 0.15;
 
-    if (dpadUp.get()) {
-      forward += SLOW_SPEED;
+    if (leftStickUp.get()) {
+      forward += 0.1;
     }
 
-    if (dpadDown.get()) {
-      forward -= SLOW_SPEED;
+    if (leftStickDown.get()) {
+      forward += -0.1;
     }
 
-    if (dpadRight.get()) {
-      sideways += SLOW_SPEED;
+    if (leftStickLeft.get()) {
+      sideways += -0.1;
     }
 
-    if (dpadLeft.get()) {
-      sideways -= SLOW_SPEED;
+    if (leftStickRight.get()) {
+      sideways += 0.1;
     }
 
     drivetrain.drive(forward, sideways, rotation);
@@ -413,14 +436,29 @@ public class RobotContainer {
 
   private Command getAutonomousCommand(double distanceInInches) {
 
+    Command halfShooterSpeed = new StartEndCommand( () -> shooter.setSpeed(0.4), () -> shooter.setSpeed(0), shooter).beforeStarting(() -> DriverStation.reportError("Revving shooter", false));
     return new ParallelCommandGroup(intakeInOnOff(), new SequentialCommandGroup(
-        new DriveDistance(distanceInInches, drivetrain),
-        new DriveRotation(180, drivetrain, navx, xboxController),
-        new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter),
-            new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index),
-                new WaitUntilPeakShooterRPM(shooter),
-                new IndexRevolve(Constants.indexFromIntakeRevolutions, index)))));
+      new DriveDistance(distanceInInches, drivetrain),
+      new DriveRotation(180, drivetrain, navx, xboxController),
+      //We use a lambda here so that the driverotation doesn't just get one value at the beginning of the match
+      new DriveRotation(0, drivetrain, navx, xboxController),
+      new ParallelCommandGroup(halfShooterSpeed,
+          new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).withTimeout(1),
+              new IndexRevolve(-999, index).withTimeout(2),
+              new WaitUntilPeakShooterRPM(shooter).withTimeout(1.5),
+              new IndexRevolve(-999, index).withTimeout(2)))));
+
+
+
+    //This is currently crashing
+    // return new ParallelCommandGroup(intakeInOnOff().beforeStarting(() -> DriverStation.reportWarning("Intake starting", false)), new SequentialCommandGroup(
+    //     new DriveDistance(distanceInInches, drivetrain).beforeStarting( () -> DriverStation.reportWarning("driving starting", false)),
+    //     new DriveRotation(180, drivetrain, navx, xboxController).beforeStarting( () -> DriverStation.reportWarning("Drive rotation starting", false))),
+    //     new ParallelCommandGroup(new StartEndCommand(() -> shooter.setSpeed(0.5), () -> shooter.setSpeed(0), shooter).beforeStarting( () -> DriverStation.reportWarning("shooter speed starting", false)),
+    //         new SequentialCommandGroup(new WaitUntilPeakShooterRPM(shooter).andThen(() -> DriverStation.reportWarning("waiting starting", false))),
+    //             new IndexRevolve(Constants.indexFromIntakeRevolutions, index).withTimeout(1).beforeStarting(new PrintCommand("Index revolving")),
+    //             new WaitUntilPeakShooterRPM(shooter).withTimeout(0.5).beforeStarting(() -> DriverStation.reportWarning("waiting starting", false))),
+    //             new IndexRevolve(Constants.indexFromIntakeRevolutions, index).beforeStarting( () -> DriverStation.reportWarning("index revolving", false)));
 
     // // we start with oneball ready to index into the shooter
     // // FIXME: its going to turn -99 if getHorizontaloffset can't get a valid
@@ -460,6 +498,8 @@ public class RobotContainer {
 
     testTab.addNumber("Left RPM", shooter::getLeftRPM);
     testTab.addNumber("Right RPM", shooter::getRightRPM);
+    testTab.addBoolean("Left stick right", leftStickRight::get);
+    testTab.addBoolean("Left stick left", leftStickLeft::get);
 
     SmartDashboard.putNumber("lime mounting angle", Constants.mountingAngle);
     chooserTab.add(chooser);
